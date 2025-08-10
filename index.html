@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Docente Ágil | Planificador & Bitácora</title>
-<link rel="icon" href="favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png">
-<link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<!-- Opcional, para barra de color en móvil -->
-<meta name="theme-color" content="#1B9C85">
+
+  <!-- Favicons -->
+  <link rel="icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#1B9C85">
 
   <!-- TailwindCSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -19,13 +20,9 @@
       theme: {
         extend: {
           colors: {
-            brand: {
-              green: '#1B9C85',
-              greenSoft: '#EAF7F4',
-              blue: '#2563EB',
-              blueSoft: '#E6F0FF',
-              ink: '#0F172A'
-            }
+            'brand-green': '#1B9C85',
+            'brand-blue':  '#2563EB',
+            'brand-ink':   '#0F172A'
           },
           boxShadow: { soft: '0 8px 24px rgba(0,0,0,0.08)' },
           borderRadius: { '2xl': '1rem' }
@@ -33,7 +30,6 @@
       }
     }
   </script>
-  <link rel="icon" href="./favicon.ico" />
   <style> html{scroll-behavior:smooth} </style>
 </head>
 <body class="bg-gray-50 text-brand-ink">
@@ -41,7 +37,7 @@
   <header class="bg-white shadow-soft sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand.green to-brand.blue flex items-center justify-center text-white font-bold text-xl shadow-soft">DÁ</div>
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-green to-brand-blue flex items-center justify-center text-white font-bold text-xl shadow-soft">DÁ</div>
         <div>
           <h1 class="font-semibold text-lg">Docente Ágil</h1>
           <p class="text-sm text-gray-500">Gestión docente, simple y poderosa.</p>
@@ -49,18 +45,18 @@
       </div>
 
       <nav class="hidden md:flex items-center gap-6 text-sm">
-        <a href="#planificador" class="text-brand.green hover:underline">Planificador</a>
-        <a href="#informes" class="hover:text-brand.green">Informes</a>
-        <a href="#calendario" class="hover:text-brand.green">Calendario</a>
-        <a href="#bitacora" class="hover:text-brand.green">Bitácora</a>
-        <a href="#inclusion" class="hover:text-brand.green">Asistente Inclusión (IA)</a>
-        <a href="#proximas" class="hover:text-brand.green">Próximas funciones</a>
-        <a href="privacy.html" class="hover:text-brand.green">Privacidad</a>
+        <a href="#planificador" class="text-brand-green hover:underline">Planificador</a>
+        <a href="#informes" class="hover:text-brand-green">Informes</a>
+        <a href="#calendario" class="hover:text-brand-green">Calendario</a>
+        <a href="#bitacora" class="hover:text-brand-green">Bitácora</a>
+        <a href="#inclusion" class="hover:text-brand-green">Asistente Inclusión (IA)</a>
+        <a href="#proximas" class="hover:text-brand-green">Próximas funciones</a>
+        <a href="privacy.html" class="hover:text-brand-green">Privacidad</a>
       </nav>
 
       <div class="flex items-center gap-3">
         <span id="authUserEmail" class="text-sm text-gray-600 hidden"></span>
-        <button id="btnLoginOpen" class="px-3 py-1.5 rounded-lg bg-brand.blue text-white text-sm shadow-soft hover:opacity-90" type="button">Iniciar sesión</button>
+        <button id="btnLoginOpen" class="px-3 py-1.5 rounded-lg bg-brand-blue text-white text-sm shadow-soft hover:opacity-90" type="button">Iniciar sesión</button>
         <button id="btnLogout" class="px-3 py-1.5 rounded-lg bg-gray-200 text-sm hover:bg-gray-300 hidden" type="button">Salir</button>
       </div>
     </div>
@@ -68,25 +64,25 @@
 
   <main class="max-w-7xl mx-auto px-4 py-8 space-y-12">
     <!-- Hero -->
-    <section class="bg-gradient-to-r from-brand.green/10 to-brand.blue/10 rounded-2xl p-6 shadow-soft border border-brand.green/20">
+    <section class="bg-gradient-to-r from-brand-green/10 to-brand-blue/10 rounded-2xl p-6 shadow-soft border border-brand-green/20">
       <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
         <div class="flex-1">
-          <h2 class="text-2xl font-semibold mb-2"><span class="text-brand.green">Docente Ágil</span> te libera tiempo administrativo</h2>
+          <h2 class="text-2xl font-semibold mb-2"><span class="text-brand-green">Docente Ágil</span> te libera tiempo administrativo</h2>
           <p class="text-gray-700">Planificá, generá informes, organizá tu calendario y registrá todo en tu bitácora. Con apoyo de IA y exportación a PDF.</p>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <a href="#planificador" class="px-4 py-3 rounded-xl bg-brand.green text-white shadow-soft text-center hover:opacity-90">Ir al Planificador</a>
-          <a href="#informes" class="px-4 py-3 rounded-xl bg-brand.blue text-white shadow-soft text-center hover:opacity-90">Generar Informes</a>
-          <a href="#calendario" class="px-4 py-3 rounded-xl bg-brand.green/10 text-brand.green shadow-soft text-center hover:bg-brand.green/20">Calendario</a>
-          <a href="#bitacora" class="px-4 py-3 rounded-xl bg-brand.blue/10 text-brand.blue shadow-soft text-center hover:bg-brand.blue/20">Bitácora</a>
+          <a href="#planificador" class="px-4 py-3 rounded-xl bg-brand-green text-white shadow-soft text-center hover:opacity-90">Ir al Planificador</a>
+          <a href="#informes" class="px-4 py-3 rounded-xl bg-brand-blue text-white shadow-soft text-center hover:opacity-90">Generar Informes</a>
+          <a href="#calendario" class="px-4 py-3 rounded-xl bg-brand-green/10 text-brand-green shadow-soft text-center hover:bg-brand-green/20">Calendario</a>
+          <a href="#bitacora" class="px-4 py-3 rounded-xl bg-brand-blue/10 text-brand-blue shadow-soft text-center hover:bg-brand-blue/20">Bitácora</a>
         </div>
       </div>
     </section>
 
     <!-- Planificador -->
-    <section id="planificador" class="bg-white rounded-2xl p-6 shadow-soft border border-brand.green/15">
+    <section id="planificador" class="bg-white rounded-2xl p-6 shadow-soft border border-brand-green/15">
       <div class="mb-4">
-        <h3 class="text-xl font-semibold mb-1 text-brand.green">Planificador</h3>
+        <h3 class="text-xl font-semibold mb-1 text-brand-green">Planificador</h3>
         <p class="text-gray-600">Planificación anual, por unidad o diaria. Exportá a PDF o guardá en la Bitácora.</p>
       </div>
 
@@ -142,12 +138,12 @@
 
           <div class="mt-4 flex flex-wrap gap-3">
             <button id="btnPlanPreview" type="button" class="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300">Previsualizar</button>
-            <button id="btnPlanPDF" type="button" class="px-4 py-2 rounded-xl bg-brand.blue text-white shadow-soft hover:opacity-90">Exportar PDF</button>
-            <button id="btnPlanBitacora" type="button" class="px-4 py-2 rounded-xl bg-brand.green text-white shadow-soft hover:opacity-90">Guardar en Bitácora</button>
+            <button id="btnPlanPDF" type="button" class="px-4 py-2 rounded-xl bg-brand-blue text-white shadow-soft hover:opacity-90">Exportar PDF</button>
+            <button id="btnPlanBitacora" type="button" class="px-4 py-2 rounded-xl bg-brand-green text-white shadow-soft hover:opacity-90">Guardar en Bitácora</button>
           </div>
 
           <div id="planPreview" class="mt-6 hidden">
-            <div class="p-5 border rounded-2xl bg-brand.blueSoft">
+            <div class="p-5 border rounded-2xl bg-brand-blue/10">
               <h4 class="text-lg font-semibold mb-3">Vista previa</h4>
               <div id="planPreviewContent" class="prose max-w-none"></div>
             </div>
@@ -158,13 +154,13 @@
         <aside class="w-full md:w-96 sticky top-24">
           <div class="bg-white border rounded-2xl p-4 shadow-soft">
             <div class="flex items-center gap-2 mb-2">
-              <div class="w-8 h-8 rounded-xl bg-brand.green text-white flex items-center justify-center font-bold">IA</div>
+              <div class="w-8 h-8 rounded-xl bg-brand-green text-white flex items-center justify-center font-bold">IA</div>
               <h4 class="font-semibold">Asistente pedagógico</h4>
             </div>
             <p class="text-sm text-gray-600 mb-3">Sugerencias de actividades, criterios y adaptaciones según tu planificación.</p>
 
             <textarea id="iaPromptPlan" rows="3" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="¿Qué tipo de actividad buscás? (p. ej., apertura 45’ Grecia y Roma, 14 estudiantes, 1 con baja visión)…"></textarea>
-            <button id="btnAskIAPlan" type="button" class="w-full px-3 py-2 rounded-lg bg-brand.green text-white hover:opacity-90">Generar sugerencias</button>
+            <button id="btnAskIAPlan" type="button" class="w-full px-3 py-2 rounded-lg bg-brand-green text-white hover:opacity-90">Generar sugerencias</button>
 
             <div id="iaPlanOutput" class="mt-3 text-sm space-y-2"></div>
 
@@ -181,8 +177,8 @@
     </section>
 
     <!-- Generador de Informes -->
-    <section id="informes" class="bg-white rounded-2xl p-6 shadow-soft border border-brand.blue/15">
-      <h3 class="text-xl font-semibold mb-1 text-brand.blue">Generador de informes</h3>
+    <section id="informes" class="bg-white rounded-2xl p-6 shadow-soft border border-brand-blue/15">
+      <h3 class="text-xl font-semibold mb-1 text-brand-blue">Generador de informes</h3>
       <p class="text-gray-600 mb-4">Seleccioná descripciones (checklist) y agregá texto libre. Exportá a PDF o guardá en Bitácora.</p>
 
       <!-- Datos del informe -->
@@ -210,7 +206,7 @@
             </select>
           </div>
 
-          <div id="informeList" class="grid sm:grid-cols-2 gap-3 max-h-[420px] overflow-auto border rounded-2xl p-3 bg-brand.greenSoft"></div>
+          <div id="informeList" class="grid sm:grid-cols-2 gap-3 max-h-[420px] overflow-auto border rounded-2xl p-3 bg-brand-green/10"></div>
         </div>
 
         <div>
@@ -219,14 +215,14 @@
 
           <div class="mt-4 space-y-2">
             <button id="btnInformePreview" type="button" class="w-full px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Previsualizar</button>
-            <button id="btnInformePDF" type="button" class="w-full px-3 py-2 rounded-lg bg-brand.blue text-white shadow-soft hover:opacity-90">Exportar PDF</button>
-            <button id="btnInformeBitacora" type="button" class="w-full px-3 py-2 rounded-lg bg-brand.green text-white shadow-soft hover:opacity-90">Guardar en Bitácora</button>
+            <button id="btnInformePDF" type="button" class="w-full px-3 py-2 rounded-lg bg-brand-blue text-white shadow-soft hover:opacity-90">Exportar PDF</button>
+            <button id="btnInformeBitacora" type="button" class="w-full px-3 py-2 rounded-lg bg-brand-green text-white shadow-soft hover:opacity-90">Guardar en Bitácora</button>
           </div>
         </div>
       </div>
 
       <div id="informePreview" class="mt-6 hidden">
-        <div class="p-5 border rounded-2xl bg-brand.blueSoft">
+        <div class="p-5 border rounded-2xl bg-brand-blue/10">
           <h4 class="text-lg font-semibold mb-3">Vista previa del informe</h4>
           <div id="informePreviewContent" class="prose max-w-none"></div>
         </div>
@@ -234,10 +230,10 @@
     </section>
 
     <!-- Calendario docente -->
-    <section id="calendario" class="bg-white rounded-2xl p-6 shadow-soft border border-brand.green/15">
+    <section id="calendario" class="bg-white rounded-2xl p-6 shadow-soft border border-brand-green/15">
       <div class="flex items-center justify-between mb-3">
         <div>
-          <h3 class="text-xl font-semibold text-brand.green">Calendario docente</h3>
+          <h3 class="text-xl font-semibold text-brand-green">Calendario docente</h3>
           <p class="text-gray-600">Eventos, recordatorios y entradas rápidas.</p>
         </div>
         <div class="flex items-center gap-2">
@@ -264,29 +260,29 @@
           <div class="flex justify-end gap-2">
             <button id="ev_delete" type="button" class="px-3 py-2 rounded-lg bg-red-100 text-red-600 hidden">Eliminar</button>
             <button class="px-3 py-2 rounded-lg bg-gray-200" type="submit">Cerrar</button>
-            <button id="ev_save" type="button" class="px-3 py-2 rounded-lg bg-brand.green text-white">Guardar</button>
+            <button id="ev_save" type="button" class="px-3 py-2 rounded-lg bg-brand-green text-white">Guardar</button>
           </div>
         </form>
       </dialog>
     </section>
 
     <!-- Bitácora docente -->
-    <section id="bitacora" class="bg-white rounded-2xl p-6 shadow-soft border border-brand.blue/15">
-      <h3 class="text-xl font-semibold mb-1 text-brand.blue">Bitácora docente</h3>
+    <section id="bitacora" class="bg-white rounded-2xl p-6 shadow-soft border border-brand-blue/15">
+      <h3 class="text-xl font-semibold mb-1 text-brand-blue">Bitácora docente</h3>
       <p class="text-gray-600 mb-4">Aquí se guardan tus planificaciones, informes y entradas personalizadas.</p>
 
       <div class="grid md:grid-cols-3 gap-2 mb-3">
         <input id="bitacoraTitulo" class="border rounded-lg px-3 py-2 w-full md:col-span-1" placeholder="Título de entrada nueva"/>
         <textarea id="bitacoraContenido" rows="2" class="border rounded-lg px-3 py-2 w-full md:col-span-2" placeholder="Escribí el contenido de tu entrada"></textarea>
       </div>
-      <button id="btnAddEntry" type="button" class="px-3 py-2 rounded-lg bg-brand.green text-white">Agregar entrada</button>
+      <button id="btnAddEntry" type="button" class="px-3 py-2 rounded-lg bg-brand-green text-white">Agregar entrada</button>
 
       <div id="bitacoraList" class="grid md:grid-cols-2 gap-3 mt-4"></div>
     </section>
 
     <!-- Asistente de Inclusión (IA) -->
-    <section id="inclusion" class="bg-white rounded-2xl p-6 shadow-soft border border-brand.green/15">
-      <h3 class="text-xl font-semibold mb-1 text-brand.green">Asistente de Inclusión (IA)</h3>
+    <section id="inclusion" class="bg-white rounded-2xl p-6 shadow-soft border border-brand-green/15">
+      <h3 class="text-xl font-semibold mb-1 text-brand-green">Asistente de Inclusión (IA)</h3>
       <p class="text-gray-600 mb-4">Consejos para atender la diversidad y adaptar la enseñanza.</p>
 
       <div class="grid md:grid-cols-2 gap-4">
@@ -300,21 +296,21 @@
           <input id="inc_asignatura" class="border rounded-lg px-3 py-2 w-full" placeholder="Asignatura (p. ej. CC, Historia)"/>
           <textarea id="inc_contexto" rows="3" class="border rounded-lg px-3 py-2 w-full" placeholder="Contexto, objetivos, tiempos, recursos…"></textarea>
           <div class="flex gap-2">
-            <button id="btnInclusionIA" type="button" class="px-4 py-2 rounded-lg bg-brand.green text-white">Generar consejos</button>
-            <button id="btnInclusionPDF" type="button" class="px-4 py-2 rounded-lg bg-brand.blue text-white">Exportar PDF</button>
+            <button id="btnInclusionIA" type="button" class="px-4 py-2 rounded-lg bg-brand-green text-white">Generar consejos</button>
+            <button id="btnInclusionPDF" type="button" class="px-4 py-2 rounded-lg bg-brand-blue text-white">Exportar PDF</button>
           </div>
         </div>
-        <div id="inclusionOutput" class="border rounded-2xl p-4 bg-brand.greenSoft min-h-[220px]"></div>
+        <div id="inclusionOutput" class="border rounded-2xl p-4 bg-brand-green/10 min-h-[220px]"></div>
       </div>
     </section>
 
     <!-- Próximas funciones -->
-    <section id="proximas" class="bg-white rounded-2xl p-6 shadow-soft border border-brand.blue/15">
-      <h3 class="text-xl font-semibold mb-1 text-brand.blue">Próximas funciones</h3>
+    <section id="proximas" class="bg-white rounded-2xl p-6 shadow-soft border border-brand-blue/15">
+      <h3 class="text-xl font-semibold mb-1 text-brand-blue">Próximas funciones</h3>
       <p class="text-gray-600 mb-4">Roadmap para seguir iterando el producto.</p>
 
       <div class="grid md:grid-cols-3 gap-4">
-        <div class="border rounded-2xl p-4 bg-brand.blueSoft">
+        <div class="border rounded-2xl p-4 bg-brand-blue/10">
           <div class="flex items-center gap-2 mb-2">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none"><path d="M7 8h10M7 12h6M5 21l3-3h9a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v11l1.5 3Z" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <h4 class="font-semibold">Foro docente</h4>
@@ -322,7 +318,7 @@
           <p class="text-sm text-gray-700">Espacio para intercambiar materiales, ideas y experiencias.</p>
         </div>
 
-        <div class="border rounded-2xl p-4 bg-brand.greenSoft">
+        <div class="border rounded-2xl p-4 bg-brand-green/10">
           <div class="flex items-center gap-2 mb-2">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h8" stroke="#1B9C85" stroke-width="1.5" stroke-linecap="round"/></svg>
             <h4 class="font-semibold">Banco de rúbricas</h4>
@@ -345,8 +341,8 @@
     <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-3">
       <div class="text-sm text-gray-600">© <span id="year"></span> Docente Ágil. Todos los derechos reservados.</div>
       <div class="flex items-center gap-4 text-sm">
-        <a href="privacy.html" class="hover:text-brand.green">Política de privacidad</a>
-        <a href="#" class="hover:text-brand.green">Términos de uso</a>
+        <a href="privacy.html" class="hover:text-brand-green">Política de privacidad</a>
+        <a href="#" class="hover:text-brand-green">Términos de uso</a>
       </div>
     </div>
   </footer>
@@ -356,7 +352,7 @@
     <form method="dialog" class="p-4">
       <h4 class="font-semibold text-lg mb-3">Autenticación</h4>
       <div class="grid grid-cols-2 gap-2 mb-3">
-        <button id="tabLogin" type="button" class="px-3 py-2 rounded-lg bg-brand.green text-white">Iniciar sesión</button>
+        <button id="tabLogin" type="button" class="px-3 py-2 rounded-lg bg-brand-green text-white">Iniciar sesión</button>
         <button id="tabRegister" type="button" class="px-3 py-2 rounded-lg bg-gray-200">Crear cuenta</button>
       </div>
       <div id="authLogin" class="space-y-2">
@@ -364,7 +360,7 @@
         <input id="loginPass" type="password" class="w-full border rounded-lg px-3 py-2" placeholder="Contraseña"/>
         <div class="flex justify-end gap-2">
           <button class="px-3 py-2 rounded-lg bg-gray-200" type="submit">Cerrar</button>
-          <button id="btnDoLogin" type="button" class="px-3 py-2 rounded-lg bg-brand.blue text-white">Entrar</button>
+          <button id="btnDoLogin" type="button" class="px-3 py-2 rounded-lg bg-brand-blue text-white">Entrar</button>
         </div>
       </div>
       <div id="authRegister" class="space-y-2 hidden">
@@ -372,16 +368,21 @@
         <input id="regPass" type="password" class="w-full border rounded-lg px-3 py-2" placeholder="Contraseña (mín. 6)"/>
         <div class="flex justify-end gap-2">
           <button class="px-3 py-2 rounded-lg bg-gray-200" type="submit">Cerrar</button>
-          <button id="btnDoRegister" type="button" class="px-3 py-2 rounded-lg bg-brand.green text-white">Crear</button>
+          <button id="btnDoRegister" type="button" class="px-3 py-2 rounded-lg bg-brand-green text-white">Crear</button>
         </div>
       </div>
       <p id="authMsg" class="text-sm text-red-600 mt-2"></p>
     </form>
   </dialog>
 
+  <!-- Librería PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-YcsIPqGmXlqD+M6+5Z8QvQe6SgZ9s+Q8C0sJvZbBv0z7k4k7q1m4R0h5H3m3qg3O9b9e6t0aU7Vt2D7S3l9hHQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- App -->
   <script type="module" src="./js/config.js"></script>
   <script type="module" src="./js/data.js"></script>
   <script type="module" src="./js/app.js"></script>
 </body>
 </html>
+
 

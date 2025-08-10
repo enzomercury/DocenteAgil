@@ -1,7 +1,129 @@
-// js/app.js
-import { firebaseConfig } from './config.js?v=7';
-import { INFORME_DESCRIPCIONES } from './data.js?v=7';
+// === APP v9 ===
+console.log('Docente Ágil APP v9');
 
+// --- Firebase config embebido ---
+const firebaseConfig = {
+  apiKey: "AIzaSyBAfggldAPKDhTuWD-dTZB9rHtS2qYtYwk",
+  authDomain: "docenteagil-26466.firebaseapp.com",
+  projectId: "docenteagil-26466",
+  storageBucket: "docenteagil-26466.firebasestorage.app",
+  messagingSenderId: "484034852463",
+  appId: "1:484034852463:web:a1791ccac702b6849fff9a",
+  measurementId: "G-QGEQ3ZZN9R"
+};
+
+// --- Descripciones embebidas ---
+const INFORME_DESCRIPCIONES = [
+  // Excelente (25)
+  {id:'ex1',cat:'excelente',txt:'Demuestra un compromiso constante con el aprendizaje y la mejora continua.'},
+  {id:'ex2',cat:'excelente',txt:'Mantiene una participación activa y respetuosa en clase.'},
+  {id:'ex3',cat:'excelente',txt:'Entrega trabajos con alto nivel de detalle y rigor académico.'},
+  {id:'ex4',cat:'excelente',txt:'Muestra autonomía para investigar y resolver problemas.'},
+  {id:'ex5',cat:'excelente',txt:'Colabora con sus pares y promueve un clima de aula positivo.'},
+  {id:'ex6',cat:'excelente',txt:'Gestiona el tiempo de forma eficiente y cumple plazos sin recordatorios.'},
+  {id:'ex7',cat:'excelente',txt:'Integra recursos tecnológicos con criterio y sentido pedagógico.'},
+  {id:'ex8',cat:'excelente',txt:'Argumenta sus ideas con sólidos fundamentos.'},
+  {id:'ex9',cat:'excelente',txt:'Presenta sus trabajos con prolijidad y creatividad.'},
+  {id:'ex10',cat:'excelente',txt:'Escucha activamente y aporta ideas pertinentes.'},
+  {id:'ex11',cat:'excelente',txt:'Demuestra pensamiento crítico y capacidad de síntesis.'},
+  {id:'ex12',cat:'excelente',txt:'Respeta normas de convivencia y acuerdos del grupo.'},
+  {id:'ex13',cat:'excelente',txt:'Realiza preguntas desafiantes que enriquecen la clase.'},
+  {id:'ex14',cat:'excelente',txt:'Integra contenidos de diferentes áreas en sus producciones.'},
+  {id:'ex15',cat:'excelente',txt:'Evidencia mejora sostenida respecto a evaluaciones previas.'},
+  {id:'ex16',cat:'excelente',txt:'Muestra liderazgo positivo en trabajos grupales.'},
+  {id:'ex17',cat:'excelente',txt:'Organiza y documenta correctamente sus procesos de trabajo.'},
+  {id:'ex18',cat:'excelente',txt:'Aprovecha retroalimentaciones para perfeccionar sus producciones.'},
+  {id:'ex19',cat:'excelente',txt:'Demuestra dominio de conceptos clave del curso.'},
+  {id:'ex20',cat:'excelente',txt:'Mantiene asistencia y puntualidad ejemplares.'},
+  {id:'ex21',cat:'excelente',txt:'Participa en actividades extra clase vinculadas a la asignatura.'},
+  {id:'ex22',cat:'excelente',txt:'Resuelve consignas complejas con creatividad.'},
+  {id:'ex23',cat:'excelente',txt:'Fomenta el trabajo colaborativo y la inclusión de sus compañeros.'},
+  {id:'ex24',cat:'excelente',txt:'Utiliza fuentes confiables y cita adecuadamente.'},
+  {id:'ex25',cat:'excelente',txt:'Demuestra metacognición al explicar sus estrategias de aprendizaje.'},
+
+  // Bueno (25)
+  {id:'bu1',cat:'bueno',txt:'Cumple con las tareas asignadas en tiempo y forma.'},
+  {id:'bu2',cat:'bueno',txt:'Participa en clase de manera frecuente.'},
+  {id:'bu3',cat:'bueno',txt:'Manifiesta una actitud respetuosa hacia docentes y compañeros.'},
+  {id:'bu4',cat:'bueno',txt:'Organiza sus materiales y mantiene orden en el trabajo.'},
+  {id:'bu5',cat:'bueno',txt:'Muestra comprensión adecuada de los contenidos trabajados.'},
+  {id:'bu6',cat:'bueno',txt:'Acepta sugerencias de mejora y las implementa.'},
+  {id:'bu7',cat:'bueno',txt:'Colabora con su equipo y asume responsabilidades.'},
+  {id:'bu8',cat:'bueno',txt:'Realiza preguntas cuando necesita aclaraciones.'},
+  {id:'bu9',cat:'bueno',txt:'Evidencia progresos sostenidos a lo largo del período.'},
+  {id:'bu10',cat:'bueno',txt:'Respeta los tiempos de trabajo y las consignas.'},
+  {id:'bu11',cat:'bueno',txt:'Utiliza recursos digitales de forma pertinente.'},
+  {id:'bu12',cat:'bueno',txt:'Se muestra receptivo a aprender de los errores.'},
+  {id:'bu13',cat:'bueno',txt:'Mantiene una conducta adecuada en la mayoría de las clases.'},
+  {id:'bu14',cat:'bueno',txt:'Participa en instancias de evaluación con compromiso.'},
+  {id:'bu15',cat:'bueno',txt:'Demuestra curiosidad por ampliar conocimientos.'},
+  {id:'bu16',cat:'bueno',txt:'Presenta trabajos claros y comprensibles.'},
+  {id:'bu17',cat:'bueno',txt:'Propone ideas para mejorar el trabajo grupal.'},
+  {id:'bu18',cat:'bueno',txt:'Hace un uso responsable de los dispositivos.'},
+  {id:'bu19',cat:'bueno',txt:'Mantiene buena relación con sus pares.'},
+  {id:'bu20',cat:'bueno',txt:'Se adapta a diferentes dinámicas de clase.'},
+  {id:'bu21',cat:'bueno',txt:'Maneja correctamente la terminología básica de la asignatura.'},
+  {id:'bu22',cat:'bueno',txt:'Sigue instrucciones y consulta cuando tiene dudas.'},
+  {id:'bu23',cat:'bueno',txt:'Demuestra habilidades de comunicación adecuadas.'},
+  {id:'bu24',cat:'bueno',txt:'Gestiona el tiempo de forma aceptable.'},
+  {id:'bu25',cat:'bueno',txt:'Evidencia responsabilidad en el cuidado de materiales.'},
+
+  // A mejorar (25)
+  {id:'am1',cat:'amejorar',txt:'Necesita mejorar la gestión del tiempo para cumplir con los plazos.'},
+  {id:'am2',cat:'amejorar',txt:'Conviene reforzar hábitos de estudio y planificación.'},
+  {id:'am3',cat:'amejorar',txt:'Se sugiere mayor participación en las discusiones de clase.'},
+  {id:'am4',cat:'amejorar',txt:'Requiere profundizar en conceptos clave para afianzar aprendizajes.'},
+  {id:'am5',cat:'amejorar',txt:'Debe mejorar la claridad y prolijidad en la presentación de trabajos.'},
+  {id:'am6',cat:'amejorar',txt:'Le beneficiaría pedir apoyo cuando surgen dificultades.'},
+  {id:'am7',cat:'amejorar',txt:'Sería positivo que revise instrucciones antes de entregar.'},
+  {id:'am8',cat:'amejorar',txt:'Necesita sostener la atención durante explicaciones extensas.'},
+  {id:'am9',cat:'amejorar',txt:'Se recomienda practicar la argumentación de sus ideas.'},
+  {id:'am10',cat:'amejorar',txt:'Debería participar más activamente en trabajos grupales.'},
+  {id:'am11',cat:'amejorar',txt:'Conviene mejorar la organización de sus materiales.'},
+  {id:'am12',cat:'amejorar',txt:'Debe cuidar la asistencia y puntualidad.'},
+  {id:'am13',cat:'amejorar',txt:'Le falta consistencia en el cumplimiento de tareas.'},
+  {id:'am14',cat:'amejorar',txt:'Podría beneficiarse de estrategias de lectura comprensiva.'},
+  {id:'am15',cat:'amejorar',txt:'Es necesario revisar ortografía y redacción.'},
+  {id:'am16',cat:'amejorar',txt:'Debería solicitar realimentación para mejorar productos.'},
+  {id:'am17',cat:'amejorar',txt:'Conviene practicar el uso de terminología específica.'},
+  {id:'am18',cat:'amejorar',txt:'Le cuesta priorizar tareas en actividades de largo plazo.'},
+  {id:'am19',cat:'amejorar',txt:'Debe mejorar la concentración en entornos con distracciones.'},
+  {id:'am20',cat:'amejorar',txt:'Se sugiere asistir a instancias de apoyo cuando estén disponibles.'},
+  {id:'am21',cat:'amejorar',txt:'Requiere mejorar la escucha activa de consignas.'},
+  {id:'am22',cat:'amejorar',txt:'Necesita mayor constancia en el estudio domiciliario.'},
+  {id:'am23',cat:'amejorar',txt:'Conviene reforzar el respeto por los tiempos de los demás.'},
+  {id:'am24',cat:'amejorar',txt:'Le beneficiaría planificar metas semanales realistas.'},
+  {id:'am25',cat:'amejorar',txt:'Debe mejorar la calidad de las fuentes utilizadas.'},
+
+  // Dificultan (25)
+  {id:'di1',cat:'dificultan',txt:'Llega tarde de forma reiterada, afectando el inicio de actividades.'},
+  {id:'di2',cat:'dificultan',txt:'Interrumpe la clase con comentarios fuera de lugar.'},
+  {id:'di3',cat:'dificultan',txt:'Presenta conductas que distraen a sus compañeros.'},
+  {id:'di4',cat:'dificultan',txt:'No respeta turnos de palabra o acuerdos básicos de convivencia.'},
+  {id:'di5',cat:'dificultan',txt:'Entrega tareas incompletas o fuera de plazo con frecuencia.'},
+  {id:'di6',cat:'dificultan',txt:'Muestra resistencia a seguir instrucciones establecidas.'},
+  {id:'di7',cat:'dificultan',txt:'Su inasistencia perjudica la continuidad de los aprendizajes.'},
+  {id:'di8',cat:'dificultan',txt:'No utiliza adecuadamente los recursos tecnológicos asignados.'},
+  {id:'di9',cat:'dificultan',txt:'Se niega a trabajar en equipo o asumir responsabilidades.'},
+  {id:'di10',cat:'dificultan',txt:'Manifiesta desinterés constante por las actividades propuestas.'},
+  {id:'di11',cat:'dificultan',txt:'Usa lenguaje inadecuado que afecta la convivencia.'},
+  {id:'di12',cat:'dificultan',txt:'Se observan copias o plagio en algunas entregas.'},
+  {id:'di13',cat:'dificultan',txt:'Reacciona de forma impulsiva ante correcciones.'},
+  {id:'di14',cat:'dificultan',txt:'Dificultades sostenidas para concentrarse en tareas simples.'},
+  {id:'di15',cat:'dificultan',txt:'Presenta reiteradas faltas de respeto hacia compañeros.'},
+  {id:'di16',cat:'dificultan',txt:'No trae materiales necesarios pese a recordatorios.'},
+  {id:'di17',cat:'dificultan',txt:'Rechaza instancias de apoyo o mediación.'},
+  {id:'di18',cat:'dificultan',txt:'Se niega a entregar evaluaciones o abandona actividades.'},
+  {id:'di19',cat:'dificultan',txt:'Provoca conflictos que rompen el clima de trabajo.'},
+  {id:'di20',cat:'dificultan',txt:'Manipula dispositivos ajenos sin permiso.'},
+  {id:'di21',cat:'dificultan',txt:'No respeta los tiempos de los demás en exposiciones/discusiones.'},
+  {id:'di22',cat:'dificultan',txt:'Ocasiona ruidos o bromas que imposibilitan avanzar.'},
+  {id:'di23',cat:'dificultan',txt:'Se ausenta del aula sin autorización.'},
+  {id:'di24',cat:'dificultan',txt:'No realiza correcciones pese a múltiples devoluciones.'},
+  {id:'di25',cat:'dificultan',txt:'Descuida el cuidado del mobiliario o el espacio común.'},
+];
+
+// --- Firebase SDK (ESM por URL) ---
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
@@ -19,15 +141,11 @@ const uidKey = () => auth.currentUser ? auth.currentUser.uid : 'guest';
 const ls = { get:(k,d=null)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d)), set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 const ns = k => `da_${uidKey()}_${k}`;
 
-/**
- * Genera PDF sin “página en blanco”: monta el contenido offscreen,
- * espera layout + fuentes y luego exporta.
- */
+// PDF robusto: monta offscreen y espera layout+fuentes
 async function saveAsPDF(contentEl, filename){
   const h2p = (window && window.html2pdf) ? window.html2pdf : null;
   if(!h2p){ alert('La librería de PDF no cargó. Recargá la página.'); return; }
 
-  // Asegurar un Element (si viene string, convertir)
   let node = contentEl;
   if (typeof contentEl === 'string'){
     const wrap = document.createElement('div');
@@ -35,72 +153,57 @@ async function saveAsPDF(contentEl, filename){
     node = wrap.firstElementChild || wrap;
   }
 
-  // Contenedor offscreen visible (no display:none)
   const container = document.createElement('div');
   container.style.position = 'absolute';
   container.style.left = '-10000px';
   container.style.top = '0';
-  // ancho A4 aprox a 96dpi
-  container.style.width = '794px';
+  container.style.width = '794px'; // ~A4 96dpi
   container.style.background = '#ffffff';
   container.style.padding = '24px';
   container.style.boxSizing = 'border-box';
   container.appendChild(node);
   document.body.appendChild(container);
 
-  // Forzar layout y esperar fuentes (si el navegador soporta)
   try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch(_) {}
   await new Promise(r => requestAnimationFrame(()=>requestAnimationFrame(r)));
 
   const opt = {
     filename,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      // Ayuda a ciertos layouts
-      windowWidth: 794,
-      windowHeight: Math.max(container.scrollHeight, 1123) // alto A4 ≈ 1123 px a 96dpi
-    },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 794, windowHeight: Math.max(container.scrollHeight, 1123) },
     jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
   };
 
-  try {
-    await h2p().set(opt).from(container).save();
-  } catch (err) {
-    console.error('PDF error:', err);
-    alert('No pude generar el PDF. Mirá la consola para más detalles.');
-  } finally {
-    container.remove();
-  }
+  try { await h2p().set(opt).from(container).save(); }
+  catch (err) { console.error('PDF error:', err); alert('No pude generar el PDF. Mirá la consola.'); }
+  finally { container.remove(); }
 }
 
 // ==== auth ui ====
 const authDialog = $('#authDialog');
-$('#btnLoginOpen').addEventListener('click', ()=>authDialog.showModal());
-$('#btnLogout').addEventListener('click', ()=>signOut(auth));
+$('#btnLoginOpen')?.addEventListener('click', ()=>authDialog.showModal());
+$('#btnLogout')?.addEventListener('click', ()=>signOut(auth));
 
 const tabLogin = $('#tabLogin'), tabRegister = $('#tabRegister');
 const authLogin = $('#authLogin'), authRegister = $('#authRegister'), authMsg = $('#authMsg');
 
-tabLogin.addEventListener('click', ()=>{
+tabLogin?.addEventListener('click', ()=>{
   tabLogin.className='px-3 py-2 rounded-lg bg-brand-green text-white';
   tabRegister.className='px-3 py-2 rounded-lg bg-gray-200';
   authLogin.classList.remove('hidden'); authRegister.classList.add('hidden'); authMsg.textContent='';
 });
-tabRegister.addEventListener('click', ()=>{
+tabRegister?.addEventListener('click', ()=>{
   tabRegister.className='px-3 py-2 rounded-lg bg-brand-green text-white';
   tabLogin.className='px-3 py-2 rounded-lg bg-gray-200';
   authRegister.classList.remove('hidden'); authLogin.classList.add('hidden'); authMsg.textContent='';
 });
 
-$('#btnDoLogin').addEventListener('click', async ()=>{
+$('#btnDoLogin')?.addEventListener('click', async ()=>{
   authMsg.textContent='';
   try { await signInWithEmailAndPassword(auth, $('#loginEmail').value, $('#loginPass').value); authDialog.close(); }
   catch(e){ authMsg.textContent = e.message; }
 });
-$('#btnDoRegister').addEventListener('click', async ()=>{
+$('#btnDoRegister')?.addEventListener('click', async ()=>{
   authMsg.textContent='';
   try { await createUserWithEmailAndPassword(auth, $('#regEmail').value, $('#regPass').value); authDialog.close(); }
   catch(e){ authMsg.textContent = e.message; }
@@ -141,21 +244,21 @@ function buildPlanHTML(){
     <h3>Otro</h3><pre>${planFields.otro()}</pre>
   </div>`;
 }
-$('#btnPlanPreview').addEventListener('click', ()=>{
+$('#btnPlanPreview')?.addEventListener('click', ()=>{
   $('#planPreviewContent').innerHTML = buildPlanHTML();
   $('#planPreview').classList.remove('hidden');
 });
-$('#btnPlanPDF').addEventListener('click', ()=>{
+$('#btnPlanPDF')?.addEventListener('click', ()=>{
   const el = document.createElement('div'); el.innerHTML = buildPlanHTML();
   saveAsPDF(el, `Plan_${planFields.asignatura()}_${planFields.tipo()}.pdf`);
 });
-$('#btnPlanBitacora').addEventListener('click', ()=>{
+$('#btnPlanBitacora')?.addEventListener('click', ()=>{
   const entries = ls.get(ns('bitacora'), []);
   entries.unshift({ id:crypto.randomUUID(), type:'plan', title:`Plan: ${planFields.asignatura()} (${planFields.tipo()})`, html:buildPlanHTML(), ts:Date.now() });
   ls.set(ns('bitacora'), entries); refreshBitacora();
 });
 
-// IA planificador (mock + endpoint opcional)
+// ==== IA planificador (mock + endpoint opcional)
 function mockIAPlanSuggestions(prompt){
   const base=[ 'Apertura con activación de saberes previos (5–7 min).','Lectura guiada con glosario colaborativo (10–12 min).','Práctica en equipos con roles (15–20 min).','Cierre con ticket de salida (3–5 min).'];
   const adapt=[]; const p=`${planFields.asignatura()}|${planFields.tema()}|${planFields.curso()}|${prompt}`.toLowerCase();
@@ -183,7 +286,7 @@ async function runIAPlan(){
   }
   $('#iaPlanOutput').innerHTML = mockIAPlanSuggestions(up);
 }
-$('#btnAskIAPlan').addEventListener('click', runIAPlan);
+$('#btnAskIAPlan')?.addEventListener('click', runIAPlan);
 
 // ==== informes ====
 const informeList = $('#informeList');
@@ -194,8 +297,9 @@ const informeAlumno = $('#informeAlumno');
 const informeInstitucion = $('#informeInstitucion');
 
 function renderInformesList(){
-  const term = searchInforme.value.trim().toLowerCase();
-  const filter = filterInforme.value;
+  if(!informeList) return;
+  const term = (searchInforme?.value || '').trim().toLowerCase();
+  const filter = filterInforme?.value || 'all';
   const items = (INFORME_DESCRIPCIONES || []).filter(d=>{
     const matchTxt = d.txt.toLowerCase().includes(term);
     const matchCat = filter==='all' ? true : d.cat===filter;
@@ -211,18 +315,17 @@ function renderInformesList(){
     </label>
   `).join('');
 }
-searchInforme.addEventListener('input', renderInformesList);
-filterInforme.addEventListener('change', renderInformesList);
+searchInforme?.addEventListener('input', renderInformesList);
+filterInforme?.addEventListener('change', renderInformesList);
 
-// build y acciones informe
 function buildInformeHTML(){
   const checked = [...informeList.querySelectorAll('input[type="checkbox"]:checked')].map(ch=>{
     const d = INFORME_DESCRIPCIONES.find(x=>x.id===ch.dataset.id);
     return d?d.txt:'';
   }).filter(Boolean);
-  const libre = informeLibre.value.trim();
-  const alumno = informeAlumno.value.trim();
-  const inst = informeInstitucion.value.trim();
+  const libre = (informeLibre?.value || '').trim();
+  const alumno = (informeAlumno?.value || '').trim();
+  const inst = (informeInstitucion?.value || '').trim();
   return `
     <div id="informeDoc" style="font-family:Inter,system-ui">
       <h2 style="margin:0 0 8px 0;color:#2563EB">Informe del estudiante</h2>
@@ -233,15 +336,15 @@ function buildInformeHTML(){
     </div>
   `;
 }
-$('#btnInformePreview').addEventListener('click', ()=>{
+$('#btnInformePreview')?.addEventListener('click', ()=>{
   $('#informePreviewContent').innerHTML = buildInformeHTML();
   $('#informePreview').classList.remove('hidden');
 });
-$('#btnInformePDF').addEventListener('click', ()=>{
+$('#btnInformePDF')?.addEventListener('click', ()=>{
   const el=document.createElement('div'); el.innerHTML = buildInformeHTML();
   saveAsPDF(el, 'Informe_estudiante.pdf');
 });
-$('#btnInformeBitacora').addEventListener('click', ()=>{
+$('#btnInformeBitacora')?.addEventListener('click', ()=>{
   const entries = ls.get(ns('bitacora'), []);
   entries.unshift({ id:crypto.randomUUID(), type:'informe', title:`Informe ${new Date().toLocaleDateString()}`, html:buildInformeHTML(), ts:Date.now() });
   ls.set(ns('bitacora'), entries); refreshBitacora();
@@ -251,17 +354,18 @@ $('#btnInformeBitacora').addEventListener('click', ()=>{
 let calCurrent = new Date();
 const calendarTitle = $('#calendarTitle'), calendarGrid = $('#calendarGrid');
 const eventDialog = $('#eventDialog');
-const ev_date=$('#ev_date'), ev_time=$('#ev_time'), ev_title=$('#ev_title'), ev_notes=$('#ev_notes']);
-const ev_save=$('#ev_save'), ev_delete=$('#ev_delete']);
+const ev_date=$('#ev_date'), ev_time=$('#ev_time'), ev_title=$('#ev_title'), ev_notes=$('#ev_notes');
+const ev_save=$('#ev_save'), ev_delete=$('#ev_delete');
 let editingEventId = null;
 
 function getEvents(){ return ls.get(ns('events'), []); }
 function setEvents(a){ ls.set(ns('events'), a); }
 
 function renderCalendar(){
+  if(!calendarGrid) return;
   const year=calCurrent.getFullYear(), month=calCurrent.getMonth();
   const first=new Date(year,month,1), start=(first.getDay()+6)%7, days=new Date(year,month+1,0).getDate();
-  calendarTitle.textContent = calCurrent.toLocaleString('es-UY',{month:'long', year:'numeric'});
+  if(calendarTitle) calendarTitle.textContent = calCurrent.toLocaleString('es-UY',{month:'long', year:'numeric'});
   calendarGrid.innerHTML='';
 
   for(let i=0;i<start;i++) calendarGrid.innerHTML += `<div class="h-24 border rounded-xl bg-gray-50"></div>`;
@@ -284,31 +388,40 @@ function renderCalendar(){
   [...calendarGrid.querySelectorAll('button[data-date]')].forEach(btn=>{
     btn.addEventListener('click', ()=>{
       editingEventId = null;
-      ev_date.value = btn.dataset.date; ev_time.value=''; ev_title.value=''; ev_notes.value='';
-      ev_delete.classList.add('hidden'); eventDialog.showModal();
+      if(ev_date) ev_date.value = btn.dataset.date;
+      if(ev_time) ev_time.value='';
+      if(ev_title) ev_title.value='';
+      if(ev_notes) ev_notes.value='';
+      ev_delete?.classList.add('hidden');
+      eventDialog?.showModal();
     });
   });
   [...calendarGrid.querySelectorAll('button[data-ev]')].forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const id=btn.dataset.ev; const ev=getEvents().find(e=>e.id===id); if(!ev) return;
-      editingEventId = ev.id; ev_date.value=ev.date; ev_time.value=ev.time||''; ev_title.value=ev.title; ev_notes.value=ev.notes||'';
-      ev_delete.classList.remove('hidden'); eventDialog.showModal();
+      editingEventId = ev.id;
+      if(ev_date) ev_date.value=ev.date;
+      if(ev_time) ev_time.value=ev.time||'';
+      if(ev_title) ev_title.value=ev.title;
+      if(ev_notes) ev_notes.value=ev.notes||'';
+      ev_delete?.classList.remove('hidden');
+      eventDialog?.showModal();
     });
   });
 }
-$('#prevMonth').addEventListener('click', ()=>{ calCurrent.setMonth(calCurrent.getMonth()-1); renderCalendar(); });
-$('#nextMonth').addEventListener('click', ()=>{ calCurrent.setMonth(calCurrent.getMonth()+1); renderCalendar(); });
+$('#prevMonth')?.addEventListener('click', ()=>{ calCurrent.setMonth(calCurrent.getMonth()-1); renderCalendar(); });
+$('#nextMonth')?.addEventListener('click', ()=>{ calCurrent.setMonth(calCurrent.getMonth()+1); renderCalendar(); });
 
-ev_save.addEventListener('click', ()=>{
+ev_save?.addEventListener('click', ()=>{
   const arr=getEvents();
   if(editingEventId){ const i=arr.findIndex(e=>e.id===editingEventId); if(i>=0) arr[i]={...arr[i],date:ev_date.value,time:ev_time.value,title:ev_title.value,notes:ev_notes.value}; }
   else{ arr.push({id:crypto.randomUUID(),date:ev_date.value,time:ev_time.value,title:ev_title.value,notes:ev_notes.value}); }
-  setEvents(arr); eventDialog.close(); renderCalendar();
+  setEvents(arr); eventDialog?.close(); renderCalendar();
 });
-ev_delete.addEventListener('click', ()=>{
+ev_delete?.addEventListener('click', ()=>{
   if(!editingEventId) return;
   setEvents(getEvents().filter(e=>e.id!==editingEventId));
-  eventDialog.close(); renderCalendar();
+  eventDialog?.close(); renderCalendar();
 });
 
 // ==== bitácora ====
@@ -316,16 +429,17 @@ const bitacoraList = $('#bitacoraList');
 const bitacoraTitulo = $('#bitacoraTitulo');
 const bitacoraContenido = $('#bitacoraContenido');
 
-$('#btnAddEntry').addEventListener('click', ()=>{
-  const title=bitacoraTitulo.value.trim(); const body=bitacoraContenido.value.trim();
+$('#btnAddEntry')?.addEventListener('click', ()=>{
+  const title=bitacoraTitulo?.value.trim(); const body=bitacoraContenido?.value.trim();
   if(!title && !body) return;
   const entries = ls.get(ns('bitacora'), []);
   entries.unshift({ id:crypto.randomUUID(), type:'custom', title:title||'Entrada', html:`<div><h2>${title||'Entrada'}</h2><p>${body||'(Sin contenido)'}</p></div>`, ts:Date.now() });
   ls.set(ns('bitacora'), entries);
-  bitacoraTitulo.value=''; bitacoraContenido.value='';
+  if(bitacoraTitulo) bitacoraTitulo.value=''; if(bitacoraContenido) bitacoraContenido.value='';
   refreshBitacora();
 });
 function refreshBitacora(){
+  if(!bitacoraList) return;
   const entries = ls.get(ns('bitacora'), []);
   if(!entries.length){ bitacoraList.innerHTML=`<div class="col-span-2 text-sm text-gray-500">No hay entradas aún.</div>`; return; }
   bitacoraList.innerHTML = entries.map(e=>`
@@ -369,6 +483,8 @@ function refreshBitacora(){
     });
   });
 }
+
+// Render inicial por si el auth tarda
 refreshBitacora();
 renderCalendar();
 renderInformesList();
@@ -395,11 +511,11 @@ function buildInclusionAdvice({edad, condicion, asignatura, contexto}){
     <ul><li>Flexibilizar tiempos y formatos de respuesta.</li><li>Rúbrica clara con criterios simples y ejemplos.</li></ul>
   `;
 }
-$('#btnInclusionIA').addEventListener('click', ()=>{
-  const payload = { edad:$('#inc_edad').value, condicion:$('#inc_condicion').value, asignatura:$('#inc_asignatura').value, contexto:$('#inc_contexto').value };
+$('#btnInclusionIA')?.addEventListener('click', ()=>{
+  const payload = { edad:$('#inc_edad')?.value, condicion:$('#inc_condicion')?.value, asignatura:$('#inc_asignatura')?.value, contexto:$('#inc_contexto')?.value };
   $('#inclusionOutput').innerHTML = buildInclusionAdvice(payload);
 });
-$('#btnInclusionPDF').addEventListener('click', ()=>{
+$('#btnInclusionPDF')?.addEventListener('click', ()=>{
   const el=document.createElement('div'); el.innerHTML=`<div id="incDoc">${$('#inclusionOutput').innerHTML}</div>`;
   saveAsPDF(el, 'Inclusion_consejos.pdf');
 });

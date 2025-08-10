@@ -359,7 +359,7 @@
         <input id="loginEmail" type="email" class="w-full border rounded-lg px-3 py-2" placeholder="Email"/>
         <input id="loginPass" type="password" class="w-full border rounded-lg px-3 py-2" placeholder="Contraseña"/>
         <div class="flex justify-end gap-2">
-          <button class="px-3 py-2 rounded-lg bg-gray-2 00" type="submit">Cerrar</button>
+          <button class="px-3 py-2 rounded-lg bg-gray-200" type="submit">Cerrar</button>
           <button id="btnDoLogin" type="button" class="px-3 py-2 rounded-lg bg-brand-blue text-white">Entrar</button>
         </div>
       </div>
@@ -375,14 +375,13 @@
     </form>
   </dialog>
 
-  <!-- Librería PDF (necesaria para Exportar PDF) -->
+  <!-- Librería PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-  <!-- App -->
-  <script type="module" src="./js/config.js"></script>
-  <script type="module" src="./js/data.js"></script>
-  <script type="module" src="./js/app.js"></script>
+  <!-- App (solo app.js; app importa config y data) -->
+  <script type="module" src="./js/app.js?v=3"></script>
 </body>
 </html>
+
 
 

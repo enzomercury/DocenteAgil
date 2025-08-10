@@ -27,12 +27,12 @@ const tabLogin = $('#tabLogin'), tabRegister = $('#tabRegister');
 const authLogin = $('#authLogin'), authRegister = $('#authRegister'), authMsg = $('#authMsg');
 
 tabLogin.addEventListener('click', ()=>{
-  tabLogin.className='px-3 py-2 rounded-lg bg-brand.green text-white';
+  tabLogin.className='px-3 py-2 rounded-lg bg-brand-green text-white';
   tabRegister.className='px-3 py-2 rounded-lg bg-gray-200';
   authLogin.classList.remove('hidden'); authRegister.classList.add('hidden'); authMsg.textContent='';
 });
 tabRegister.addEventListener('click', ()=>{
-  tabRegister.className='px-3 py-2 rounded-lg bg-brand.green text-white';
+  tabRegister.className='px-3 py-2 rounded-lg bg-brand-green text-white';
   tabLogin.className='px-3 py-2 rounded-lg bg-gray-200';
   authRegister.classList.remove('hidden'); authLogin.classList.add('hidden'); authMsg.textContent='';
 });
@@ -144,10 +144,10 @@ function renderInformesList(){
     return matchTxt && matchCat;
   });
   informeList.innerHTML = items.map(d=>`
-    <label class="flex items-start gap-2 p-3 bg-white rounded-xl shadow-soft border border-brand.blue/10">
+    <label class="flex items-start gap-2 p-3 bg-white rounded-xl shadow-soft border border-brand-blue/10">
       <input type="checkbox" data-id="${d.id}"/>
       <div>
-        <div class="text-[10px] tracking-wide uppercase text-brand.blue font-semibold">${d.cat}</div>
+        <div class="text-[10px] tracking-wide uppercase text-brand-blue font-semibold">${d.cat}</div>
         <div>${d.txt}</div>
       </div>
     </label>
@@ -215,9 +215,9 @@ function renderCalendar(){
     calendarGrid.innerHTML += `
       <div class="h-24 border rounded-xl bg-white p-2 relative overflow-hidden">
         <div class="text-xs text-gray-500">${d}</div>
-        <button data-date="${dateStr}" class="absolute top-2 right-2 text-xs w-6 h-6 rounded-full bg-brand.green text-white flex items-center justify-center" title="Agregar">+</button>
+        <button data-date="${dateStr}" class="absolute top-2 right-2 text-xs w-6 h-6 rounded-full bg-brand-green text-white flex items-center justify-center" title="Agregar">+</button>
         <div class="mt-6 h-[70%] overflow-auto space-y-1">
-          ${dayEvents.map(ev=>`<button data-ev="${ev.id}" class="w-full text-left text-xs px-2 py-1 rounded bg-brand.blueSoft hover:bg-brand.blue/10">${ev.time?ev.time+' - ':''}${ev.title}</button>`).join('')}
+          ${dayEvents.map(ev=>`<button data-ev="${ev.id}" class="w-full text-left text-xs px-2 py-1 rounded bg-brand-blue/10 hover:bg-brand-blue/20">${ev.time?ev.time+' - ':''}${ev.title}</button>`).join('')}
         </div>
       </div>
     `;
@@ -279,7 +279,7 @@ function refreshBitacora(){
           <div class="text-xs text-gray-500">${new Date(e.ts).toLocaleString()}</div>
         </div>
         <div class="flex gap-2">
-          <button data-pdf="${e.id}" class="px-3 py-1.5 rounded-lg bg-brand.blue text-white text-xs">PDF</button>
+          <button data-pdf="${e.id}" class="px-3 py-1.5 rounded-lg bg-brand-blue text-white text-xs">PDF</button>
           <button data-view="${e.id}" class="px-3 py-1.5 rounded-lg bg-gray-200 text-xs">Ver</button>
           <button data-del="${e.id}" class="px-3 py-1.5 rounded-lg bg-red-100 text-red-600 text-xs">Borrar</button>
         </div>

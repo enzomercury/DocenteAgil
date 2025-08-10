@@ -141,15 +141,16 @@ const uidKey = () => auth.currentUser ? auth.currentUser.uid : 'guest';
 const ls = { get:(k,d=null)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d)), set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 const ns = k => `da_${uidKey()}_${k}`;
 
-// Reemplazar por completo en js/app.js
+// === NUEVA saveAsPDF: html2canvas + jsPDF ===
 async function saveAsPDF(contentEl, filename){
-  const h2p = (window && window.html2pdf) ? window.html2pdf : null;
-  if(!h2p){
-    alert('La librería de PDF no cargó. Probá recargar la página.');
+  const h2c = window.html2canvas;
+  const { jsPDF } = window.jspdf || {};
+  if(!h2c || !jsPDF){
+    alert('Faltan librerías PDF (html2canvas/jsPDF). Recargá la página.');
     return;
   }
 
-  // 1) Asegurar nodo
+  // Asegurar nodo
   let node = contentEl;
   if (typeof contentEl === 'string'){
     const wrap = document.createElement('div');
@@ -157,17 +158,17 @@ async function saveAsPDF(contentEl, filename){
     node = wrap.firstElementChild || wrap;
   }
 
-  // 2) Contenedor offscreen (visible para layout)
+  // Contenedor offscreen para calcular layout
   const container = document.createElement('div');
   container.style.position = 'absolute';
   container.style.left = '-10000px';
   container.style.top = '0';
-  container.style.width = '794px'; // ~A4 en 96dpi
+  container.style.width = '794px'; // ~A4 a 96dpi
   container.style.background = '#ffffff';
   container.style.padding = '24px';
   container.style.boxSizing = 'border-box';
 
-  // estilo base por si el CDN de Tailwind queda fuera del contexto
+  // Estilos base por si las clases no aplican
   const baseStyle = document.createElement('style');
   baseStyle.textContent = `
     *{box-sizing:border-box} body{margin:0}
@@ -179,74 +180,52 @@ async function saveAsPDF(contentEl, filename){
   container.appendChild(node);
   document.body.appendChild(container);
 
-  // 3) Esperar layout + fuentes
   try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch(_) {}
   await new Promise(r => requestAnimationFrame(()=>requestAnimationFrame(r)));
 
-  // Si no tiene alto, no hay nada que capturar
-  const h = Math.max(container.scrollHeight, container.offsetHeight);
-  if (h < 10){
-    console.warn('Contenido sin alto visible para PDF.');
+  // Capturar a canvas
+  let canvas;
+  try{
+    canvas = await h2c(container, {
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      allowTaint: true,
+      scale: 2,
+      scrollY: 0,
+      windowWidth: 794,
+      windowHeight: Math.max(container.scrollHeight, 1123)
+    });
+  }catch(err){
+    console.error('html2canvas error:', err);
     container.remove();
-    return fallbackPrint(node.outerHTML || container.innerHTML, filename);
+    alert('No pude renderizar el contenido. Mirá la consola.');
+    return;
   }
 
-  // 4) Intento principal con html2pdf -> blob -> descarga
-  const opt = {
-    filename,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, windowWidth: 794, windowHeight: Math.max(h, 1123) },
-    jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
-  };
+  const imgData = canvas.toDataURL('image/jpeg', 0.95);
+  const pdf = new jsPDF('p','pt','a4');
+  const pageWidth  = pdf.internal.pageSize.getWidth();   // ~595 pt
+  const pageHeight = pdf.internal.pageSize.getHeight();  // ~842 pt
 
-  try {
-    const worker = h2p().set(opt).from(container).toPdf();
-    const pdf = await worker.get('pdf');          // instancia jsPDF
-    const blob = pdf.output('blob');              // sacamos el blob
-    container.remove();
+  const imgWidth = pageWidth;
+  const imgHeight = canvas.height * (imgWidth / canvas.width);
 
-    // Heurística: si pesa muy poco, suele ser "página en blanco"
-    if (!blob || blob.size < 5000){
-      console.warn('PDF muy pequeño, uso fallback de impresión. Blob size:', blob ? blob.size : 0);
-      return fallbackPrint(node.outerHTML, filename);
-    }
+  // Primera página
+  pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
 
-    // Descargar manualmente (más robusto que .save() en algunos navegadores)
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+  // Paginado si el alto excede A4
+  let heightLeft = imgHeight - pageHeight;
+  let position = -pageHeight;
 
-  } catch (err) {
-    console.error('PDF error:', err);
-    container.remove();
-    // 5) Fallback seguro: imprimir → “Guardar como PDF”
-    return fallbackPrint(node.outerHTML, filename);
+  while (heightLeft > 0){
+    pdf.addPage();
+    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+    position -= pageHeight;
   }
 
-  // --- Fallback: nueva pestaña con CSS de impresión A4 ---
-  function fallbackPrint(innerHTML, title){
-    const w = window.open('', '_blank');
-    if(!w){ alert('No pude abrir la ventana de impresión (pop-up bloqueado). Permití ventanas emergentes para este sitio.'); return; }
-    w.document.write(`<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>${title}</title>
-  <style>
-    @page { size: A4; margin: 16mm; }
-    body { font-family: Inter, system-ui, Arial, sans-serif; color:#111; }
-    h1,h2,h3{ margin:0 0 8px 0 }
-    pre{ white-space:pre-wrap; font-family: inherit }
-  </style>
-</head>
-<body>${innerHTML}</body>
-</html>`);
-    w.document.close();
-    // pequeño delay para render antes de imprimir
-    setTimeout(()=>{ w.focus(); w.print(); /* w.close();  // opcional */ }, 300);
-  }
+  container.remove();
+  pdf.save(filename);
 }
 
 

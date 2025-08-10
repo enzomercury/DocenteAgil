@@ -1,5 +1,6 @@
-import { firebaseConfig } from './config.js?v=1';
-import { INFORME_DESCRIPCIONES } from './data.js?v=1';
+// js/app.js
+import { firebaseConfig } from './config.js?v=6';
+import { INFORME_DESCRIPCIONES } from './data.js?v=6';
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
@@ -18,16 +19,50 @@ const uidKey = () => auth.currentUser ? auth.currentUser.uid : 'guest';
 const ls = { get:(k,d=null)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d)), set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 const ns = k => `da_${uidKey()}_${k}`;
 
-function saveAsPDF(el, filename){
+/**
+ * Genera PDF sin “página en blanco”: monta el contenido offscreen
+ * para que html2canvas pueda medir correctamente.
+ */
+function saveAsPDF(contentEl, filename){
   const h2p = (window && window.html2pdf) ? window.html2pdf : null;
-  if(!h2p){ alert('La librería de PDF no cargó. Revisá la conexión o recargá la página.'); return; }
+  if(!h2p){ alert('La librería de PDF no cargó. Recargá la página.'); return; }
+
+  // 1) Asegurar un nodo Element (si viene string, convertir)
+  let node = contentEl;
+  if (typeof contentEl === 'string'){
+    const wrap = document.createElement('div');
+    wrap.innerHTML = contentEl;
+    node = wrap.firstElementChild || wrap;
+  }
+
+  // 2) Montar offscreen para que html2canvas calcule tamaño
+  const container = document.createElement('div');
+  container.style.position = 'fixed';
+  container.style.left = '-10000px';
+  container.style.top = '0';
+  // ancho A4 aproximado a 96dpi
+  container.style.width = '794px';
+  container.style.background = '#ffffff';
+  container.style.padding = '24px';
+  container.style.boxSizing = 'border-box';
+  container.appendChild(node);
+  document.body.appendChild(container);
+
   const opt = {
     filename,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
     jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
   };
-  h2p().set(opt).from(el).save();
+
+  // 3) Generar y limpiar
+  h2p().set(opt).from(container).save()
+    .then(()=> container.remove())
+    .catch(err => {
+      console.error('PDF error:', err);
+      container.remove();
+      alert('No pude generar el PDF. Mirá la consola para más detalles.');
+    });
 }
 
 // ==== auth ui ====
@@ -205,8 +240,8 @@ $('#btnInformeBitacora').addEventListener('click', ()=>{
 let calCurrent = new Date();
 const calendarTitle = $('#calendarTitle'), calendarGrid = $('#calendarGrid');
 const eventDialog = $('#eventDialog');
-const ev_date=$('#ev_date'), ev_time=$('#ev_time'), ev_title=$('#ev_title'), ev_notes=$('#ev_notes');
-const ev_save=$('#ev_save'), ev_delete=$('#ev_delete');
+const ev_date=$('#ev_date'), ev_time=$('#ev_time'), ev_title=$('#ev_title'), ev_notes=$('#ev_notes']);
+const ev_save=$('#ev_save'), ev_delete=$('#ev_delete']);
 let editingEventId = null;
 
 function getEvents(){ return ls.get(ns('events'), []); }

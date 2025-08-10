@@ -18,6 +18,16 @@ const uidKey = () => auth.currentUser ? auth.currentUser.uid : 'guest';
 const ls = { get:(k,d=null)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d)), set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 const ns = k => `da_${uidKey()}_${k}`;
 
+function saveAsPDF(el, filename){
+  const opt = {
+    filename,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(el).save();
+}
+
 // ==== auth ui ====
 const authDialog = $('#authDialog');
 $('#btnLoginOpen').addEventListener('click', ()=>authDialog.showModal());
@@ -89,7 +99,7 @@ $('#btnPlanPreview').addEventListener('click', ()=>{
 });
 $('#btnPlanPDF').addEventListener('click', ()=>{
   const el = document.createElement('div'); el.innerHTML = buildPlanHTML();
-  html2pdf().set({filename:`Plan_${planFields.asignatura()}_${planFields.tipo()}.pdf`}).from(el).save();
+  saveAsPDF(el, `Plan_${planFields.asignatura()}_${planFields.tipo()}.pdf`);
 });
 $('#btnPlanBitacora').addEventListener('click', ()=>{
   const entries = ls.get(ns('bitacora'), []);
@@ -181,7 +191,7 @@ $('#btnInformePreview').addEventListener('click', ()=>{
 });
 $('#btnInformePDF').addEventListener('click', ()=>{
   const el=document.createElement('div'); el.innerHTML = buildInformeHTML();
-  html2pdf().set({filename:'Informe_estudiante.pdf'}).from(el).save();
+  saveAsPDF(el, 'Informe_estudiante.pdf');
 });
 $('#btnInformeBitacora').addEventListener('click', ()=>{
   const entries = ls.get(ns('bitacora'), []);
@@ -193,8 +203,8 @@ $('#btnInformeBitacora').addEventListener('click', ()=>{
 let calCurrent = new Date();
 const calendarTitle = $('#calendarTitle'), calendarGrid = $('#calendarGrid');
 const eventDialog = $('#eventDialog');
-const ev_date=$('#ev_date'), ev_time=$('#ev_time'), ev_title=$('#ev_title'), ev_notes=$('#ev_notes');
-const ev_save=$('#ev_save'), ev_delete=$('#ev_delete');
+const ev_date=$('#ev_date'), ev_time=$('#ev_time'), ev_title=$('#ev_title'), ev_notes=$('#ev_notes']);
+const ev_save=$('#ev_save'), ev_delete=$('#ev_delete']);
 let editingEventId = null;
 
 function getEvents(){ return ls.get(ns('events'), []); }
@@ -295,7 +305,7 @@ function refreshBitacora(){
   [...bitacoraList.querySelectorAll('button[data-pdf]')].forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const e = entriesRef.find(x=>x.id===btn.dataset.pdf); if(!e) return;
-      const el=document.createElement('div'); el.innerHTML=e.html; html2pdf().set({filename:`${e.title}.pdf`}).from(el).save();
+      const el=document.createElement('div'); el.innerHTML=e.html; saveAsPDF(el, `${e.title}.pdf`);
     });
   });
   [...bitacoraList.querySelectorAll('button[data-view]')].forEach(btn=>{
@@ -342,5 +352,6 @@ $('#btnInclusionIA').addEventListener('click', ()=>{
 });
 $('#btnInclusionPDF').addEventListener('click', ()=>{
   const el=document.createElement('div'); el.innerHTML=`<div id="incDoc">${$('#inclusionOutput').innerHTML}</div>`;
-  html2pdf().set({filename:'Inclusion_consejos.pdf'}).from(el).save();
+  saveAsPDF(el, 'Inclusion_consejos.pdf');
 });
+

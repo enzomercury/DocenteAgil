@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Docente Ágil</title>
+
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              green: '#1B9C85',
+              greenSoft: '#EAF7F4',
+              blue: '#2563EB',
+              blueSoft: '#E6F0FF',
+              ink: '#0F172A'
+            }
+          },
+          boxShadow: {
+            soft: '0 8px 24px rgba(0,0,0,0.08)'
+          },
+          borderRadius: {
+            '2xl': '1rem'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- html2pdf -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-YcsIPyZrEwKqkA3P1zvE2nA6xgV1ZC1mK6m2e6C3n8p4w2fN2vQpQw0S8j6n8d8vQm2Wiml+F9S3YF6z9WkA3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Firebase (Auth) -->
+  <script type="module">
+    // Si aún no tenés proyecto, deja esto como está y luego completamos firebaseConfig en /js/config.example.js -> /js/config.js
+  </script>
+
+  <style>
+    /* Scroll suave para modales/laterales */
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-gray-50 text-brand-ink">
+  <!-- Header / Navbar -->
+  <header class="bg-white shadow-soft sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <!-- Logo DA -->
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand.green to-brand.blue flex items-center justify-center text-white font-bold text-xl shadow-soft">DÁ</div>
+        <div>
+          <h1 class="font-semibold text-lg">Docente Ágil</h1>
+          <p class="text-sm text-gray-500">Gestión docente, simple y poderosa.</p>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-6 text-sm">
+        <a href="#planificador" class="hover:text-brand.green">Planificador</a>
+        <a href="#informes" class="hover:text-brand.green">Informes</a>
+        <a href="#calendario" class="hover:text-brand.green">Calendario</a>
+        <a href="#bitacora" class="hover:text-brand.green">Bitácora</a>
+        <a href="#inclusion" class="hover:text-brand.green">Asistente Inclusión (IA)</a>
+        <a href="#proximas" class="hover:text-brand.green">Próximas funciones</a>
+        <a href="#privacidad" class="hover:text-brand.green">Privacidad</a>
+      </nav>
+
+      <!-- Auth controls -->
+      <div class="flex items-center gap-3">
+        <span id="authUserEmail" class="text-sm text-gray-600 hidden"></span>
+        <button id="btnLoginOpen" class="px-3 py-1.5 rounded-lg bg-brand.blue text-white text-sm shadow-soft hover:opacity-90">Iniciar sesión</button>
+        <button id="btnLogout" class="px-3 py-1.5 rounded-lg bg-gray-200 text-sm hover:bg-gray-300 hidden">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-7xl mx-auto px-4 py-8 space-y-12">
+    <!-- Hero -->
+    <section class="bg-white rounded-2xl p-6 shadow-soft">
+      <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+        <div class="flex-1">
+          <h2 class="text-2xl font-semibold mb-2">Bienvenido/a a <span class="text-brand.green">Docente Ágil</span></h2>
+          <p class="text-gray-600">Planificá, generá informes, organizá tu calendario y registrá todo en tu bitácora. Con apoyo de IA y exportación a PDF.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <a href="#planificador" class="px-4 py-3 rounded-xl bg-brand.green text-white shadow-soft text-center hover:opacity-90">Ir al Planificador</a>
+          <a href="#informes" class="px-4 py-3 rounded-xl bg-brand.blue text-white shadow-soft text-center hover:opacity-90">Generar Informes</a>
+          <a href="#calendario" class="px-4 py-3 rounded-xl bg-brand.green/10 text-brand.green shadow-soft text-center hover:bg-brand.green/20">Calendario</a>
+          <a href="#bitacora" class="px-4 py-3 rounded-xl bg-brand.blue/10 text-brand.blue shadow-soft text-center hover:bg-brand.blue/20">Bitácora</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Planificador -->
+    <section id="planificador" class="bg-white rounded-2xl p-6 shadow-soft">
+      <div class="flex items-start gap-6">
+        <div class="flex-1">
+          <h3 class="text-xl font-semibold mb-1">Planificador</h3>
+          <p class="text-gray-600 mb-4">Planificación anual, por unidad o diaria. Exportá a PDF o guardá en la Bitácora.</p>
+
+          <!-- Selector de tipo -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium mb-2">Tipo de planificación</label>
+            <select id="planType" class="w-full md:w-64 border rounded-lg px-3 py-2">
+              <option value="anual">Anual</option>
+              <option value="unidad">Por unidad</option>
+              <option value="diaria">Diaria</option>
+            </select>
+          </div>
+
+          <!-- Form Planificador -->
+          <form id="planForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-medium">Asignatura</label>
+              <input id="pf_asignatura" class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="Historia, CC, etc."/>
+            </div>
+            <div>
+              <label class="text-sm font-medium">Tema</label>
+              <input id="pf_tema" class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="El legado de Grecia y Roma"/>
+            </div>
+            <div>
+              <label class="text-sm font-medium">Curso</label>
+              <input id="pf_curso" class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="7°, 8°, 9°, Bachillerato…"/>
+            </div>
+            <div>
+              <label class="text-sm font-medium">Nombre del profesor</label>
+              <input id="pf_profesor" class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="Prof. Enzo Román"/>
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-sm font-medium">Contenidos a trabajar</label>
+              <textarea id="pf_contenidos" rows="3" class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="- …"></textarea>
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-sm font-medium">Metas de aprendizaje</label>
+              <textarea id="pf_metas" rows="3" class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="- …"></textarea>
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-sm font-medium">Competencias generales</label>
+              <textarea id="pf_comp_gen" rows="3" class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="- …"></textarea>
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-sm font-medium">Competencias específicas</label>
+              <textarea id="pf_comp_esp" rows="3" class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="- …"></textarea>
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-sm font-medium">Otro</label>
+              <textarea id="pf_otro" rows="2" class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="Observaciones, recursos, tiempos, etc."></textarea>
+            </div>
+          </form>
+
+          <div class="mt-4 flex flex-wrap gap-3">
+            <button id="btnPlanPreview" class="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300">Previsualizar</button>
+            <button id="btnPlanPDF" class="px-4 py-2 rounded-xl bg-brand.blue text-white shadow-soft hover:opacity-90">Exportar PDF</button>
+            <button id="btnPlanBitacora" class="px-4 py-2 rounded-xl bg-brand.green text-white shadow-soft hover:opacity-90">Guardar en Bitácora</button>
+          </div>
+
+          <!-- Preview -->
+          <div id="planPreview" class="mt-6 hidden">
+            <div class="p-5 border rounded-2xl bg-brand.blueSoft">
+              <h4 class="text-lg font-semibold mb-3">Vista previa</h4>
+              <div id="planPreviewContent" class="prose max-w-none"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat IA Planificador -->
+        <aside class="w-full md:w-96 sticky top-24">
+          <div class="bg-white border rounded-2xl p-4 shadow-soft">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-8 h-8 rounded-xl bg-brand.green text-white flex items-center justify-center font-bold">IA</div>
+              <h4 class="font-semibold">Asistente pedagógico</h4>
+            </div>
+            <p class="text-sm text-gray-600 mb-3">Sugerencias de actividades, criterios y adaptaciones según tu planificación.</p>
+
+            <textarea id="iaPromptPlan" rows="3" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="¿Qué tipo de actividad buscás? (p. ej., apertura sobre Grecia y Roma, 45 min, grupo de 14, un estudiante con baja visión)…"></textarea>
+            <button id="btnAskIAPlan" class="w-full px-3 py-2 rounded-lg bg-brand.green text-white hover:opacity-90">Generar sugerencias</button>
+
+            <div id="iaPlanOutput" class="mt-3 text-sm space-y-2"></div>
+
+            <!-- Configuración IA (opcional) -->
+            <details class="mt-4">
+              <summary class="text-sm text-gray-500 cursor-pointer">Config avanzada (usar endpoint propio)</summary>
+              <div class="mt-2 space-y-2">
+                <input id="iaEndpoint" class="w-full border rounded-lg px-3 py-2 text-xs" placeholder="https://tu-worker.example.com/ia"/>
+                <input id="iaApiKey" class="w-full border rounded-lg px-3 py-2 text-xs" placeholder="API Key (no se guarda)"/>
+              </div>
+            </details>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Generador de Informes -->
+    <section id="informes" class="bg-white rounded-2xl p-6 shadow-soft">
+      <h3 class="text-xl font-semibold mb-1">Generador de informes</h3>
+      <p class="text-gray-600 mb-4">Seleccioná descripciones (checklist) y agregá texto libre. Exportá a PDF o guardá en Bitácora.</p>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3 mb-3">
+            <input id="searchInforme" class="border rounded-lg px-3 py-2 w-full" placeholder="Buscar (ej: puntualidad, comportamiento, rendimiento)…"/>
+            <select id="filterInforme" class="border rounded-lg px-3 py-2">
+              <option value="all">Todos</option>
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="amejorar">A mejorar</option>
+              <option value="dificultan">Dificultan</option>
+            </select>
+          </div>
+
+          <div id="informeList" class="grid sm:grid-cols-2 gap-3 max-h-[420px] overflow-auto border rounded-2xl p-3 bg-brand.greenSoft"></div>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium">Texto libre (opcional)</label>
+          <textarea id="informeLibre" rows="10" class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="Comentarios específicos del docente…"></textarea>
+
+          <div class="mt-4 space-y-2">
+            <button id="btnInformePreview" class="w-full px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Previsualizar</button>
+            <button id="btnInformePDF" class="w-full px-3 py-2 rounded-lg bg-brand.blue text-white shadow-soft hover:opacity-90">Exportar PDF</button>
+            <button id="btnInformeBitacora" class="w-full px-3 py-2 rounded-lg bg-brand.green text-white shadow-soft hover:opacity-90">Guardar en Bitácora</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="informePreview" class="mt-6 hidden">
+        <div class="p-5 border rounded-2xl bg-brand.blueSoft">
+          <h4 class="text-lg font-semibold mb-3">Vista previa del informe</h4>
+          <div id="informePreviewContent" class="prose max-w-none"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Calendario docente -->
+    <section id="calendario" class="bg-white rounded-2xl p-6 shadow-soft">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h3 class="text-xl font-semibold">Calendario docente</h3>
+          <p class="text-gray-600">Eventos, recordatorios y entradas rápidas.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="prevMonth" class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">&larr;</button>
+          <div id="calendarTitle" class="min-w-[160px] text-center font-semibold"></div>
+          <button id="nextMonth" class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">&rarr;</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-7 text-sm text-gray-500 mb-2">
+        <div class="text-center">Lun</div><div class="text-center">Mar</div><div class="text-center">Mié</div>
+        <div class="text-center">Jue</div><div class="text-center">Vie</div><div class="text-center">Sáb</div><div class="text-center">Dom</div>
+      </div>
+      <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
+
+      <!-- Modal evento -->
+      <dialog id="eventDialog" class="rounded-2xl p-0 w-full max-w-md">
+        <form method="dialog" class="p-4">
+          <h4 class="font-semibold text-lg mb-2">Nuevo evento</h4>
+          <input type="date" id="ev_date" class="w-full border rounded-lg px-3 py-2 mb-2"/>
+          <input type="time" id="ev_time" class="w-full border rounded-lg px-3 py-2 mb-2"/>
+          <input type="text" id="ev_title" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="Título"/>
+          <textarea id="ev_notes" rows="3" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="Notas"></textarea>
+          <div class="flex justify-end gap-2">
+            <button id="ev_delete" type="button" class="px-3 py-2 rounded-lg bg-red-100 text-red-600">Eliminar</button>
+            <button class="px-3 py-2 rounded-lg bg-gray-200">Cancelar</button>
+            <button id="ev_save" type="button" class="px-3 py-2 rounded-lg bg-brand.green text-white">Guardar</button>
+          </div>
+        </form>
+      </dialog>
+    </section>
+
+    <!-- Bitácora docente -->
+    <section id="bitacora" class="bg-white rounded-2xl p-6 shadow-soft">
+      <h3 class="text-xl font-semibold mb-1">Bitácora docente</h3>
+      <p class="text-gray-600 mb-4">Aquí se guardan tus planificaciones, informes y entradas personalizadas.</p>
+
+      <div class="flex items-center gap-2 mb-3">
+        <input id="bitacoraTitulo" class="border rounded-lg px-3 py-2 w-full" placeholder="Título de entrada nueva"/>
+        <button id="btnAddEntry" class="px-3 py-2 rounded-lg bg-brand.green text-white">Agregar entrada</button>
+      </div>
+
+      <div id="bitacoraList" class="grid md:grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- Asistente de Inclusión (IA) -->
+    <section id="inclusion" class="bg-white rounded-2xl p-6 shadow-soft">
+      <h3 class="text-xl font-semibold mb-1">Asistente de Inclusión (IA)</h3>
+      <p class="text-gray-600 mb-4">Consejos para atender la diversidad (p. ej. TEA) y adaptar la enseñanza.</p>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="space-y-3">
+          <input id="inc_edad" class="border rounded-lg px-3 py-2 w-full" type="number" placeholder="Edad del estudiante"/>
+          <select id="inc_condicion" class="border rounded-lg px-3 py-2 w-full">
+            <option value="">Condición</option>
+            <option>TEA</option>
+            <option>TDAH</option>
+            <option>Baja visión</option>
+            <option>Hipoacusia</option>
+            <option>Dislexia</option>
+            <option>Motora</option>
+          </select>
+          <input id="inc_asignatura" class="border rounded-lg px-3 py-2 w-full" placeholder="Asignatura (p. ej. CC, Historia)"/>
+          <textarea id="inc_contexto" rows="3" class="border rounded-lg px-3 py-2 w-full" placeholder="Contexto, objetivos, tiempos, recursos…"></textarea>
+          <div class="flex gap-2">
+            <button id="btnInclusionIA" class="px-4 py-2 rounded-lg bg-brand.green text-white">Generar consejos</button>
+            <button id="btnInclusionPDF" class="px-4 py-2 rounded-lg bg-brand.blue text-white">Exportar PDF</button>
+          </div>
+        </div>
+        <div id="inclusionOutput" class="border rounded-2xl p-4 bg-brand.greenSoft min-h-[220px]"></div>
+      </div>
+    </section>
+
+    <!-- Próximas funciones -->
+    <section id="proximas" class="bg-white rounded-2xl p-6 shadow-soft">
+      <h3 class="text-xl font-semibold mb-1">Próximas funciones</h3>
+      <p class="text-gray-600 mb-4">Roadmap para seguir iterando el producto.</p>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <!-- Foro docente -->
+        <div class="border rounded-2xl p-4 bg-brand.blueSoft">
+          <div class="flex items-center gap-2 mb-2">
+            <!-- Globitos de chat -->
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none"><path d="M7 8h10M7 12h6M5 21l3-3h9a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v11l1.5 3Z" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <h4 class="font-semibold">Foro docente</h4>
+          </div>
+          <p class="text-sm text-gray-700">Espacio para intercambiar materiales, ideas y experiencias.</p>
+        </div>
+
+        <!-- Banco de rubricas -->
+        <div class="border rounded-2xl p-4 bg-brand.greenSoft">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h8" stroke="#1B9C85" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <h4 class="font-semibold">Banco de rúbricas</h4>
+          </div>
+          <p class="text-sm text-gray-700">Modelos editables por asignatura y nivel.</p>
+        </div>
+
+        <!-- Analytics aprendizaje -->
+        <div class="border rounded-2xl p-4 bg-white">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none"><path d="M4 20V10m6 10V4m6 16v-6m4 6H4" stroke="#0F172A" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <h4 class="font-semibold">Analytics de aprendizaje</h4>
+          </div>
+          <p class="text-sm text-gray-700">Panel con métricas de progreso y alertas tempranas.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Política de privacidad -->
+    <section id="privacidad" class="bg-white rounded-2xl p-6 shadow-soft">
+      <h3 class="text-xl font-semibold mb-1">Política de privacidad</h3>
+      <p class="text-gray-600 mb-4">Transparencia y control de tus datos.</p>
+      <div id="privacyContent" class="prose max-w-none"></div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white mt-12">
+    <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div class="text-sm text-gray-600">© <span id="year"></span> Docente Ágil. Todos los derechos reservados.</div>
+      <div class="flex items-center gap-4 text-sm">
+        <a href="#privacidad" class="hover:text-brand.green">Política de privacidad</a>
+        <a href="#" class="hover:text-brand.green">Términos de uso</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Login/Register Modal -->
+  <dialog id="authDialog" class="rounded-2xl p-0 w-full max-w-md">
+    <form method="dialog" class="p-4">
+      <h4 class="font-semibold text-lg mb-3">Autenticación</h4>
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <button id="tabLogin" type="button" class="px-3 py-2 rounded-lg bg-brand.green text-white">Iniciar sesión</button>
+        <button id="tabRegister" type="button" class="px-3 py-2 rounded-lg bg-gray-200">Crear cuenta</button>
+      </div>
+      <div id="authLogin" class="space-y-2">
+        <input id="loginEmail" type="email" class="w-full border rounded-lg px-3 py-2" placeholder="Email"/>
+        <input id="loginPass" type="password" class="w-full border rounded-lg px-3 py-2" placeholder="Contraseña"/>
+        <div class="flex justify-end gap-2">
+          <button class="px-3 py-2 rounded-lg bg-gray-200">Cerrar</button>
+          <button id="btnDoLogin" type="button" class="px-3 py-2 rounded-lg bg-brand.blue text-white">Entrar</button>
+        </div>
+      </div>
+      <div id="authRegister" class="space-y-2 hidden">
+        <input id="regEmail" type="email" class="w-full border rounded-lg px-3 py-2" placeholder="Email"/>
+        <input id="regPass" type="password" class="w-full border rounded-lg px-3 py-2" placeholder="Contraseña (mín. 6)"/>
+        <div class="flex justify-end gap-2">
+          <button class="px-3 py-2 rounded-lg bg-gray-200">Cerrar</button>
+          <button id="btnDoRegister" type="button" class="px-3 py-2 rounded-lg bg-brand.green text-white">Crear</button>
+        </div>
+      </div>
+      <p id="authMsg" class="text-sm text-red-600 mt-2"></p>
+    </form>
+  </dialog>
+
+  <!-- App scripts -->
+  <script type="module" src="./js/config.js"></script> <!-- crea este archivo con tu firebaseConfig -->
+  <script type="module" src="./js/data.js"></script>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

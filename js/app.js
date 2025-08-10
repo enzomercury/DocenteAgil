@@ -141,11 +141,15 @@ const uidKey = () => auth.currentUser ? auth.currentUser.uid : 'guest';
 const ls = { get:(k,d=null)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d)), set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 const ns = k => `da_${uidKey()}_${k}`;
 
-// PDF robusto: monta offscreen y espera layout+fuentes
+// Reemplazar por completo en js/app.js
 async function saveAsPDF(contentEl, filename){
   const h2p = (window && window.html2pdf) ? window.html2pdf : null;
-  if(!h2p){ alert('La librería de PDF no cargó. Recargá la página.'); return; }
+  if(!h2p){
+    alert('La librería de PDF no cargó. Probá recargar la página.');
+    return;
+  }
 
+  // 1) Asegurar nodo
   let node = contentEl;
   if (typeof contentEl === 'string'){
     const wrap = document.createElement('div');
@@ -153,31 +157,98 @@ async function saveAsPDF(contentEl, filename){
     node = wrap.firstElementChild || wrap;
   }
 
+  // 2) Contenedor offscreen (visible para layout)
   const container = document.createElement('div');
   container.style.position = 'absolute';
   container.style.left = '-10000px';
   container.style.top = '0';
-  container.style.width = '794px'; // ~A4 96dpi
+  container.style.width = '794px'; // ~A4 en 96dpi
   container.style.background = '#ffffff';
   container.style.padding = '24px';
   container.style.boxSizing = 'border-box';
+
+  // estilo base por si el CDN de Tailwind queda fuera del contexto
+  const baseStyle = document.createElement('style');
+  baseStyle.textContent = `
+    *{box-sizing:border-box} body{margin:0}
+    #planDoc,#informeDoc,#incDoc{font-family: Inter, system-ui, Arial, sans-serif; color:#111}
+    h1,h2,h3{margin:0 0 8px 0}
+    pre{white-space:pre-wrap; font-family: inherit}
+  `;
+  container.appendChild(baseStyle);
   container.appendChild(node);
   document.body.appendChild(container);
 
+  // 3) Esperar layout + fuentes
   try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch(_) {}
   await new Promise(r => requestAnimationFrame(()=>requestAnimationFrame(r)));
 
+  // Si no tiene alto, no hay nada que capturar
+  const h = Math.max(container.scrollHeight, container.offsetHeight);
+  if (h < 10){
+    console.warn('Contenido sin alto visible para PDF.');
+    container.remove();
+    return fallbackPrint(node.outerHTML || container.innerHTML, filename);
+  }
+
+  // 4) Intento principal con html2pdf -> blob -> descarga
   const opt = {
     filename,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 794, windowHeight: Math.max(container.scrollHeight, 1123) },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, windowWidth: 794, windowHeight: Math.max(h, 1123) },
     jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
   };
 
-  try { await h2p().set(opt).from(container).save(); }
-  catch (err) { console.error('PDF error:', err); alert('No pude generar el PDF. Mirá la consola.'); }
-  finally { container.remove(); }
+  try {
+    const worker = h2p().set(opt).from(container).toPdf();
+    const pdf = await worker.get('pdf');          // instancia jsPDF
+    const blob = pdf.output('blob');              // sacamos el blob
+    container.remove();
+
+    // Heurística: si pesa muy poco, suele ser "página en blanco"
+    if (!blob || blob.size < 5000){
+      console.warn('PDF muy pequeño, uso fallback de impresión. Blob size:', blob ? blob.size : 0);
+      return fallbackPrint(node.outerHTML, filename);
+    }
+
+    // Descargar manualmente (más robusto que .save() en algunos navegadores)
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+
+  } catch (err) {
+    console.error('PDF error:', err);
+    container.remove();
+    // 5) Fallback seguro: imprimir → “Guardar como PDF”
+    return fallbackPrint(node.outerHTML, filename);
+  }
+
+  // --- Fallback: nueva pestaña con CSS de impresión A4 ---
+  function fallbackPrint(innerHTML, title){
+    const w = window.open('', '_blank');
+    if(!w){ alert('No pude abrir la ventana de impresión (pop-up bloqueado). Permití ventanas emergentes para este sitio.'); return; }
+    w.document.write(`<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${title}</title>
+  <style>
+    @page { size: A4; margin: 16mm; }
+    body { font-family: Inter, system-ui, Arial, sans-serif; color:#111; }
+    h1,h2,h3{ margin:0 0 8px 0 }
+    pre{ white-space:pre-wrap; font-family: inherit }
+  </style>
+</head>
+<body>${innerHTML}</body>
+</html>`);
+    w.document.close();
+    // pequeño delay para render antes de imprimir
+    setTimeout(()=>{ w.focus(); w.print(); /* w.close();  // opcional */ }, 300);
+  }
 }
+
 
 // ==== auth ui ====
 const authDialog = $('#authDialog');

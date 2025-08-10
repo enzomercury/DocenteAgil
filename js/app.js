@@ -1,5 +1,5 @@
-import { firebaseConfig } from './config.js';
-import { INFORME_DESCRIPCIONES } from './data.js';
+import { firebaseConfig } from './config.js?v=1';
+import { INFORME_DESCRIPCIONES } from './data.js?v=1';
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
@@ -19,13 +19,15 @@ const ls = { get:(k,d=null)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(
 const ns = k => `da_${uidKey()}_${k}`;
 
 function saveAsPDF(el, filename){
+  const h2p = (window && window.html2pdf) ? window.html2pdf : null;
+  if(!h2p){ alert('La librería de PDF no cargó. Revisá la conexión o recargá la página.'); return; }
   const opt = {
     filename,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
   };
-  html2pdf().set(opt).from(el).save();
+  h2p().set(opt).from(el).save();
 }
 
 // ==== auth ui ====
@@ -62,7 +64,7 @@ onAuthStateChanged(auth, (user)=>{
   const email = $('#authUserEmail'), out = $('#btnLogout'), inb = $('#btnLoginOpen');
   if (user){ email.textContent=user.email; email.classList.remove('hidden'); out.classList.remove('hidden'); inb.classList.add('hidden'); }
   else { email.classList.add('hidden'); out.classList.add('hidden'); inb.classList.remove('hidden'); }
-  refreshBitacora(); renderCalendar();
+  refreshBitacora(); renderCalendar(); renderInformesList();
 });
 
 // ==== planificador ====
@@ -148,7 +150,7 @@ const informeInstitucion = $('#informeInstitucion');
 function renderInformesList(){
   const term = searchInforme.value.trim().toLowerCase();
   const filter = filterInforme.value;
-  const items = INFORME_DESCRIPCIONES.filter(d=>{
+  const items = (INFORME_DESCRIPCIONES || []).filter(d=>{
     const matchTxt = d.txt.toLowerCase().includes(term);
     const matchCat = filter==='all' ? true : d.cat===filter;
     return matchTxt && matchCat;
@@ -163,10 +165,10 @@ function renderInformesList(){
     </label>
   `).join('');
 }
-renderInformesList();
 searchInforme.addEventListener('input', renderInformesList);
 filterInforme.addEventListener('change', renderInformesList);
 
+// build y acciones informe
 function buildInformeHTML(){
   const checked = [...informeList.querySelectorAll('input[type="checkbox"]:checked')].map(ch=>{
     const d = INFORME_DESCRIPCIONES.find(x=>x.id===ch.dataset.id);
@@ -203,8 +205,8 @@ $('#btnInformeBitacora').addEventListener('click', ()=>{
 let calCurrent = new Date();
 const calendarTitle = $('#calendarTitle'), calendarGrid = $('#calendarGrid');
 const eventDialog = $('#eventDialog');
-const ev_date=$('#ev_date'), ev_time=$('#ev_time'), ev_title=$('#ev_title'), ev_notes=$('#ev_notes']);
-const ev_save=$('#ev_save'), ev_delete=$('#ev_delete']);
+const ev_date=$('#ev_date'), ev_time=$('#ev_time'), ev_title=$('#ev_title'), ev_notes=$('#ev_notes');
+const ev_save=$('#ev_save'), ev_delete=$('#ev_delete');
 let editingEventId = null;
 
 function getEvents(){ return ls.get(ns('events'), []); }
@@ -323,6 +325,7 @@ function refreshBitacora(){
 }
 refreshBitacora();
 renderCalendar();
+renderInformesList();
 
 // ==== inclusión IA ====
 function buildInclusionAdvice({edad, condicion, asignatura, contexto}){
@@ -354,4 +357,3 @@ $('#btnInclusionPDF').addEventListener('click', ()=>{
   const el=document.createElement('div'); el.innerHTML=`<div id="incDoc">${$('#inclusionOutput').innerHTML}</div>`;
   saveAsPDF(el, 'Inclusion_consejos.pdf');
 });
-

@@ -1,6 +1,6 @@
 // js/app.js
-import { firebaseConfig } from './config.js?v=6';
-import { INFORME_DESCRIPCIONES } from './data.js?v=6';
+import { firebaseConfig } from './config.js?v=7';
+import { INFORME_DESCRIPCIONES } from './data.js?v=7';
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
@@ -20,14 +20,14 @@ const ls = { get:(k,d=null)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(
 const ns = k => `da_${uidKey()}_${k}`;
 
 /**
- * Genera PDF sin “página en blanco”: monta el contenido offscreen
- * para que html2canvas pueda medir correctamente.
+ * Genera PDF sin “página en blanco”: monta el contenido offscreen,
+ * espera layout + fuentes y luego exporta.
  */
-function saveAsPDF(contentEl, filename){
+async function saveAsPDF(contentEl, filename){
   const h2p = (window && window.html2pdf) ? window.html2pdf : null;
   if(!h2p){ alert('La librería de PDF no cargó. Recargá la página.'); return; }
 
-  // 1) Asegurar un nodo Element (si viene string, convertir)
+  // Asegurar un Element (si viene string, convertir)
   let node = contentEl;
   if (typeof contentEl === 'string'){
     const wrap = document.createElement('div');
@@ -35,12 +35,12 @@ function saveAsPDF(contentEl, filename){
     node = wrap.firstElementChild || wrap;
   }
 
-  // 2) Montar offscreen para que html2canvas calcule tamaño
+  // Contenedor offscreen visible (no display:none)
   const container = document.createElement('div');
-  container.style.position = 'fixed';
+  container.style.position = 'absolute';
   container.style.left = '-10000px';
   container.style.top = '0';
-  // ancho A4 aproximado a 96dpi
+  // ancho A4 aprox a 96dpi
   container.style.width = '794px';
   container.style.background = '#ffffff';
   container.style.padding = '24px';
@@ -48,21 +48,32 @@ function saveAsPDF(contentEl, filename){
   container.appendChild(node);
   document.body.appendChild(container);
 
+  // Forzar layout y esperar fuentes (si el navegador soporta)
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch(_) {}
+  await new Promise(r => requestAnimationFrame(()=>requestAnimationFrame(r)));
+
   const opt = {
     filename,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      // Ayuda a ciertos layouts
+      windowWidth: 794,
+      windowHeight: Math.max(container.scrollHeight, 1123) // alto A4 ≈ 1123 px a 96dpi
+    },
     jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
   };
 
-  // 3) Generar y limpiar
-  h2p().set(opt).from(container).save()
-    .then(()=> container.remove())
-    .catch(err => {
-      console.error('PDF error:', err);
-      container.remove();
-      alert('No pude generar el PDF. Mirá la consola para más detalles.');
-    });
+  try {
+    await h2p().set(opt).from(container).save();
+  } catch (err) {
+    console.error('PDF error:', err);
+    alert('No pude generar el PDF. Mirá la consola para más detalles.');
+  } finally {
+    container.remove();
+  }
 }
 
 // ==== auth ui ====
@@ -338,7 +349,7 @@ function refreshBitacora(){
     </div>
   `).join('');
 
-  const entriesRef = entries; // cierre
+  const entriesRef = entries;
   [...bitacoraList.querySelectorAll('button[data-pdf]')].forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const e = entriesRef.find(x=>x.id===btn.dataset.pdf); if(!e) return;
@@ -392,3 +403,4 @@ $('#btnInclusionPDF').addEventListener('click', ()=>{
   const el=document.createElement('div'); el.innerHTML=`<div id="incDoc">${$('#inclusionOutput').innerHTML}</div>`;
   saveAsPDF(el, 'Inclusion_consejos.pdf');
 });
+

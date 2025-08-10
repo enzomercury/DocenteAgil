@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Política de Privacidad | Docente Ágil</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme:{ extend:{ colors:{ brand:{ green:'#1B9C85', blue:'#2563EB' }}}}};
+  </script>
+</head>
+<body class="bg-gray-50 text-slate-900">
+  <header class="bg-white shadow-soft">
+    <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="./" class="text-brand.green font-semibold">← Volver a Docente Ágil</a>
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand.green to-brand.blue text-white flex items-center justify-center font-bold">DÁ</div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-8 space-y-6 bg-white rounded-2xl mt-6 shadow-soft">
+    <h1 class="text-2xl font-semibold text-brand.green">Política de Privacidad</h1>
+
+    <p><strong>Responsable:</strong> Prof. Enzo Román Celada — <a class="text-brand.blue underline" href="mailto:enzo.roman@docente.ceibal.edu.uy">enzo.roman@docente.ceibal.edu.uy</a></p>
+
+    <h2 class="text-xl font-semibold">Resumen</h2>
+    <p>Docente Ágil prioriza la privacidad del usuario. Esta política describe qué datos se recolectan, para qué se usan y cómo ejercer tus derechos.</p>
+
+    <h2 class="text-xl font-semibold">Datos que recolectamos</h2>
+    <ul class="list-disc pl-6">
+      <li>Datos de autenticación: correo electrónico (Firebase Authentication).</li>
+      <li>Contenido generado por el usuario: planificaciones, informes, eventos y entradas de bitácora. Por defecto se guardan en tu navegador (localStorage). En futuras versiones, opcionalmente en Firestore.</li>
+    </ul>
+
+    <h2 class="text-xl font-semibold">Uso de datos</h2>
+    <ul class="list-disc pl-6">
+      <li>Proveer funcionalidades de la aplicación (acceso, guardado, exportación a PDF).</li>
+      <li>Mejorar la experiencia de usuario y desarrollo de nuevas funciones.</li>
+    </ul>
+
+    <h2 class="text-xl font-semibold">Base legal</h2>
+    <p>Consentimiento del usuario y ejecución del servicio solicitado.</p>
+
+    <h2 class="text-xl font-semibold">Conservación</h2>
+    <p>Los datos locales permanecen en tu dispositivo hasta que los elimines. Los datos en Firebase se conservan según la configuración de tu proyecto.</p>
+
+    <h2 class="text-xl font-semibold">Compartición</h2>
+    <p>No compartimos tus datos con terceros salvo proveedores técnicos (Firebase) conforme a su propia política y términos.</p>
+
+    <h2 class="text-xl font-semibold">Seguridad</h2>
+    <p>Recomendamos no almacenar información sensible. Mantené tus credenciales seguras.</p>
+
+    <h2 class="text-xl font-semibold">Derechos</h2>
+    <p>Podés solicitar acceso, rectificación o supresión de datos. Para consultas: <a class="text-brand.blue underline" href="mailto:enzo.roman@docente.ceibal.edu.uy">enzo.roman@docente.ceibal.edu.uy</a>.</p>
+
+    <p class="text-sm text-gray-500">Última actualización: agosto 2025.</p>
+  </main>
+
+  <footer class="mt-8 text-center text-sm text-gray-500 pb-8">
+    © <script>document.write(new Date().getFullYear())</script> Docente Ágil.
+  </footer>
+</body>
+</html>

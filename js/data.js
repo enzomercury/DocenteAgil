@@ -1,32 +1,5 @@
-export const PRIVACY_TEXT = `
-<h4>Resumen</h4>
-<p>Docente Ágil prioriza la privacidad del usuario. Esta política describe qué datos se recolectan, para qué se usan y cómo ejercer tus derechos.</p>
-<h4>Datos que recolectamos</h4>
-<ul>
-  <li>Datos de autenticación: correo electrónico (Firebase Authentication).</li>
-  <li>Contenido generado por el usuario: planificaciones, informes, eventos y entradas de bitácora (almacenados localmente en tu navegador; opcionalmente en la nube si habilitás Firestore en el futuro).</li>
-</ul>
-<h4>Uso de datos</h4>
-<ul>
-  <li>Proveer funcionalidades de la aplicación (acceso, guardado, exportación a PDF).</li>
-  <li>Mejorar la experiencia de usuario y desarrollo de nuevas funciones.</li>
-</ul>
-<h4>Base legal</h4>
-<p>Consentimiento del usuario y ejecución del servicio solicitado.</p>
-<h4>Conservación</h4>
-<p>Los datos locales permanecen en tu dispositivo hasta que los elimines. Los datos en Firebase se conservan según tu configuración del proyecto.</p>
-<h4>Compartición</h4>
-<p>No compartimos tus datos con terceros salvo proveedores técnicos (Firebase) conforme a su propia política y términos.</p>
-<h4>Seguridad</h4>
-<p>Recomendamos no almacenar información sensible. Mantené tus credenciales seguras.</p>
-<h4>Derechos</h4>
-<p>Acceso, rectificación y supresión. Podés eliminar entradas desde la app o escribirnos para soporte.</p>
-<h4>Contacto</h4>
-<p>Contacto del responsable: soporte@docente-agil.example</p>
-`;
-
 export const INFORME_DESCRIPCIONES = [
-  // --- Excelente (25)
+  // Excelente (25)
   {id:'ex1',cat:'excelente',txt:'Demuestra un compromiso constante con el aprendizaje y la mejora continua.'},
   {id:'ex2',cat:'excelente',txt:'Mantiene una participación activa y respetuosa en clase.'},
   {id:'ex3',cat:'excelente',txt:'Entrega trabajos con alto nivel de detalle y rigor académico.'},
@@ -53,7 +26,7 @@ export const INFORME_DESCRIPCIONES = [
   {id:'ex24',cat:'excelente',txt:'Utiliza fuentes confiables y cita adecuadamente.'},
   {id:'ex25',cat:'excelente',txt:'Demuestra metacognición al explicar sus estrategias de aprendizaje.'},
 
-  // --- Bueno (25)
+  // Bueno (25)
   {id:'bu1',cat:'bueno',txt:'Cumple con las tareas asignadas en tiempo y forma.'},
   {id:'bu2',cat:'bueno',txt:'Participa en clase de manera frecuente.'},
   {id:'bu3',cat:'bueno',txt:'Manifiesta una actitud respetuosa hacia docentes y compañeros.'},
@@ -80,7 +53,7 @@ export const INFORME_DESCRIPCIONES = [
   {id:'bu24',cat:'bueno',txt:'Gestiona el tiempo de forma aceptable.'},
   {id:'bu25',cat:'bueno',txt:'Evidencia responsabilidad en el cuidado de materiales.'},
 
-  // --- A mejorar (25)
+  // A mejorar (25)
   {id:'am1',cat:'amejorar',txt:'Necesita mejorar la gestión del tiempo para cumplir con los plazos.'},
   {id:'am2',cat:'amejorar',txt:'Conviene reforzar hábitos de estudio y planificación.'},
   {id:'am3',cat:'amejorar',txt:'Se sugiere mayor participación en las discusiones de clase.'},
@@ -107,7 +80,7 @@ export const INFORME_DESCRIPCIONES = [
   {id:'am24',cat:'amejorar',txt:'Le beneficiaría planificar metas semanales realistas.'},
   {id:'am25',cat:'amejorar',txt:'Debe mejorar la calidad de las fuentes utilizadas.'},
 
-  // --- Dificultan (25)
+  // Dificultan (25)
   {id:'di1',cat:'dificultan',txt:'Llega tarde de forma reiterada, afectando el inicio de actividades.'},
   {id:'di2',cat:'dificultan',txt:'Interrumpe la clase con comentarios fuera de lugar.'},
   {id:'di3',cat:'dificultan',txt:'Presenta conductas que distraen a sus compañeros.'},
@@ -134,3 +107,4 @@ export const INFORME_DESCRIPCIONES = [
   {id:'di24',cat:'dificultan',txt:'No realiza correcciones pese a múltiples devoluciones.'},
   {id:'di25',cat:'dificultan',txt:'Descuida el cuidado del mobiliario o el espacio común.'},
 ];
+

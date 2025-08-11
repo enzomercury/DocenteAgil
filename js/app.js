@@ -145,6 +145,43 @@ const uidKey = () => auth.currentUser ? auth.currentUser.uid : 'guest';
 const ls = { get:(k,d=null)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d)), set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 const ns = k => `da_${uidKey()}_${k}`;
 
+// ======= mejoras UX móvil (no invasivas) =======
+const __once = (el, key) => {
+  if (!el) return false;
+  if (el.dataset && el.dataset[key]) return false;
+  if (el.dataset) el.dataset[key] = "1";
+  return true;
+};
+
+function lockBodyScroll(lock){
+  document.body.style.overflow = lock ? "hidden" : "";
+  document.body.style.touchAction = lock ? "none" : "";
+}
+
+function enhanceDialog(dlg){
+  if (!dlg || !__once(dlg, "enhancedDialog")) return;
+  // Lock/unlock al abrir/cerrar
+  dlg.addEventListener("close", () => lockBodyScroll(false));
+  dlg.addEventListener("cancel", () => lockBodyScroll(false));
+  const _showModal = dlg.showModal?.bind(dlg);
+  if (_showModal){
+    dlg.showModal = () => { lockBodyScroll(true); _showModal(); };
+  }
+  // Foco en primer control al abrir (tras pintar)
+  dlg.addEventListener("transitionend", () => {
+    const first = dlg.querySelector("input, textarea, select, button");
+    first?.focus?.();
+  });
+}
+
+// Cerrar menú móvil al tocar un enlace dentro del menú
+document.addEventListener("click", (ev)=>{
+  const mobileMenu = document.getElementById("mobileMenu");
+  if (!mobileMenu) return;
+  const a = ev.target?.closest?.("#mobileMenu a");
+  if (a) mobileMenu.open = false;
+});
+
 // Estado en memoria
 const state = {
   events: [],         // calendario
@@ -241,14 +278,21 @@ const authDialog = $('#authDialog');
 function openAuthDialog(){
   if (!authDialog) return;
   try {
-    if (typeof authDialog.showModal === 'function') authDialog.showModal();
-    else { authDialog.setAttribute('open',''); authDialog.style.display = 'block'; }
+    if (typeof authDialog.showModal === 'function') { 
+      authDialog.showModal(); // lock se aplica en enhanceDialog
+    }
+    else { 
+      authDialog.setAttribute('open',''); 
+      authDialog.style.display = 'block'; 
+      lockBodyScroll(true);
+    }
   } catch (e) {
     try { authDialog.close(); } catch(_) {}
     try { authDialog.showModal(); }
     catch {
       authDialog.setAttribute('open','');
       authDialog.style.display = 'block';
+      lockBodyScroll(true);
     }
   }
 }
@@ -259,6 +303,7 @@ authDialog?.addEventListener('click', (e)=>{
     try { authDialog.close(); } catch(_) {}
     authDialog.removeAttribute('open');
     authDialog.style.display = '';
+    lockBodyScroll(false);
   }
 });
 $('#btnLoginOpen')?.addEventListener('click', openAuthDialog);
@@ -280,12 +325,12 @@ tabRegister?.addEventListener('click', ()=>{
 
 $('#btnDoLogin')?.addEventListener('click', async ()=>{
   authMsg.textContent='';
-  try { await signInWithEmailAndPassword(auth, $('#loginEmail').value, $('#loginPass').value); try{authDialog.close();}catch(_){} }
+  try { await signInWithEmailAndPassword(auth, $('#loginEmail').value, $('#loginPass').value); try{authDialog.close();}catch(_){} lockBodyScroll(false); }
   catch(e){ authMsg.textContent = e.message; }
 });
 $('#btnDoRegister')?.addEventListener('click', async ()=>{
   authMsg.textContent='';
-  try { await createUserWithEmailAndPassword(auth, $('#regEmail').value, $('#regPass').value); try{authDialog.close();}catch(_){} }
+  try { await createUserWithEmailAndPassword(auth, $('#regEmail').value, $('#regPass').value); try{authDialog.close();}catch(_){} lockBodyScroll(false); }
   catch(e){ authMsg.textContent = e.message; }
 });
 
@@ -531,7 +576,7 @@ function renderCalendar(){
       if(ev_title) ev_title.value='';
       if(ev_notes) ev_notes.value='';
       ev_delete?.classList.add('hidden');
-      try{ eventDialog?.showModal(); }catch{ eventDialog?.setAttribute('open',''); }
+      try{ eventDialog?.showModal(); }catch{ eventDialog?.setAttribute('open',''); lockBodyScroll(true); }
     });
   });
   [...calendarGrid.querySelectorAll('button[data-ev]')].forEach(btn=>{
@@ -543,7 +588,7 @@ function renderCalendar(){
       if(ev_title) ev_title.value=ev.title;
       if(ev_notes) ev_notes.value=ev.notes||'';
       ev_delete?.classList.remove('hidden');
-      try{ eventDialog?.showModal(); }catch{ eventDialog?.setAttribute('open',''); }
+      try{ eventDialog?.showModal(); }catch{ eventDialog?.setAttribute('open',''); lockBodyScroll(true); }
     });
   });
 }
@@ -572,6 +617,7 @@ ev_save?.addEventListener('click', async ()=>{
     state.events = arr;
   }
   try{ eventDialog?.close(); }catch{}
+  lockBodyScroll(false);
   renderCalendar();
 });
 ev_delete?.addEventListener('click', async ()=>{
@@ -584,6 +630,7 @@ ev_delete?.addEventListener('click', async ()=>{
     state.events = arr;
   }
   try{ eventDialog?.close(); }catch{}
+  lockBodyScroll(false);
   renderCalendar();
 });
 
@@ -699,4 +746,11 @@ $('#btnInclusionPDF')?.addEventListener('click', ()=>{
   const el=document.createElement('div'); el.innerHTML=`<div id="incDoc">${$('#inclusionOutput').innerHTML}</div>`;
   saveAsPDF(el, 'Inclusion_consejos.pdf');
 });
+
+// ===== aplicar mejoras a diálogos tras montar DOM =====
+document.addEventListener('DOMContentLoaded', ()=>{
+  enhanceDialog(document.getElementById('authDialog'));
+  enhanceDialog(document.getElementById('eventDialog'));
+});
+
 

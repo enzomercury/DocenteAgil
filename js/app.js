@@ -1,7 +1,7 @@
-// === APP v9 ===
-console.log('Docente Ágil APP v9');
+// ===== Docente Ágil APP v12 =====
+console.log('Docente Ágil APP v12');
 
-// --- Firebase config embebido ---
+// --- Firebase config (usá tu proyecto; este es el tuyo de prueba) ---
 const firebaseConfig = {
   apiKey: "AIzaSyBAfggldAPKDhTuWD-dTZB9rHtS2qYtYwk",
   authDomain: "docenteagil-26466.firebaseapp.com",
@@ -12,7 +12,7 @@ const firebaseConfig = {
   measurementId: "G-QGEQ3ZZN9R"
 };
 
-// --- Descripciones embebidas ---
+// --- Descripciones del generador de informes (100 ítems) ---
 const INFORME_DESCRIPCIONES = [
   // Excelente (25)
   {id:'ex1',cat:'excelente',txt:'Demuestra un compromiso constante con el aprendizaje y la mejora continua.'},
@@ -129,19 +129,31 @@ import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
   createUserWithEmailAndPassword, signOut
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {
+  getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
+  onSnapshot
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 // ==== helpers ====
 const $ = s => document.querySelector(s);
-const $$ = s => document.querySelectorAll(s);
 const yearEl = $('#year'); if (yearEl) yearEl.textContent = new Date().getFullYear();
 const uidKey = () => auth.currentUser ? auth.currentUser.uid : 'guest';
 const ls = { get:(k,d=null)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d)), set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 const ns = k => `da_${uidKey()}_${k}`;
 
-// === NUEVA saveAsPDF: html2canvas + jsPDF ===
+// Estado en memoria
+const state = {
+  events: [],         // calendario
+  bitacora: [],       // entradas
+  unsubEvents: null,
+  unsubBitacora: null
+};
+
+// ==== PDF (html2canvas + jsPDF) ====
 async function saveAsPDF(contentEl, filename){
   const h2c = window.html2canvas;
   const { jsPDF } = window.jspdf || {};
@@ -150,7 +162,7 @@ async function saveAsPDF(contentEl, filename){
     return;
   }
 
-  // Asegurar nodo
+  // Node seguro
   let node = contentEl;
   if (typeof contentEl === 'string'){
     const wrap = document.createElement('div');
@@ -158,17 +170,16 @@ async function saveAsPDF(contentEl, filename){
     node = wrap.firstElementChild || wrap;
   }
 
-  // Contenedor offscreen para calcular layout
+  // Montaje offscreen para layout correcto
   const container = document.createElement('div');
   container.style.position = 'absolute';
   container.style.left = '-10000px';
   container.style.top = '0';
-  container.style.width = '794px'; // ~A4 a 96dpi
+  container.style.width = '794px'; // ~A4 96dpi
   container.style.background = '#ffffff';
   container.style.padding = '24px';
   container.style.boxSizing = 'border-box';
 
-  // Estilos base por si las clases no aplican
   const baseStyle = document.createElement('style');
   baseStyle.textContent = `
     *{box-sizing:border-box} body{margin:0}
@@ -183,7 +194,6 @@ async function saveAsPDF(contentEl, filename){
   try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch(_) {}
   await new Promise(r => requestAnimationFrame(()=>requestAnimationFrame(r)));
 
-  // Capturar a canvas
   let canvas;
   try{
     canvas = await h2c(container, {
@@ -210,10 +220,8 @@ async function saveAsPDF(contentEl, filename){
   const imgWidth = pageWidth;
   const imgHeight = canvas.height * (imgWidth / canvas.width);
 
-  // Primera página
   pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
 
-  // Paginado si el alto excede A4
   let heightLeft = imgHeight - pageHeight;
   let position = -pageHeight;
 
@@ -228,10 +236,32 @@ async function saveAsPDF(contentEl, filename){
   pdf.save(filename);
 }
 
-
 // ==== auth ui ====
 const authDialog = $('#authDialog');
-$('#btnLoginOpen')?.addEventListener('click', ()=>authDialog.showModal());
+function openAuthDialog(){
+  if (!authDialog) return;
+  try {
+    if (typeof authDialog.showModal === 'function') authDialog.showModal();
+    else { authDialog.setAttribute('open',''); authDialog.style.display = 'block'; }
+  } catch (e) {
+    try { authDialog.close(); } catch(_) {}
+    try { authDialog.showModal(); }
+    catch {
+      authDialog.setAttribute('open','');
+      authDialog.style.display = 'block';
+    }
+  }
+}
+authDialog?.addEventListener('click', (e)=>{
+  const rect = authDialog.getBoundingClientRect();
+  const inside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+  if (!inside) {
+    try { authDialog.close(); } catch(_) {}
+    authDialog.removeAttribute('open');
+    authDialog.style.display = '';
+  }
+});
+$('#btnLoginOpen')?.addEventListener('click', openAuthDialog);
 $('#btnLogout')?.addEventListener('click', ()=>signOut(auth));
 
 const tabLogin = $('#tabLogin'), tabRegister = $('#tabRegister');
@@ -250,20 +280,64 @@ tabRegister?.addEventListener('click', ()=>{
 
 $('#btnDoLogin')?.addEventListener('click', async ()=>{
   authMsg.textContent='';
-  try { await signInWithEmailAndPassword(auth, $('#loginEmail').value, $('#loginPass').value); authDialog.close(); }
+  try { await signInWithEmailAndPassword(auth, $('#loginEmail').value, $('#loginPass').value); try{authDialog.close();}catch(_){} }
   catch(e){ authMsg.textContent = e.message; }
 });
 $('#btnDoRegister')?.addEventListener('click', async ()=>{
   authMsg.textContent='';
-  try { await createUserWithEmailAndPassword(auth, $('#regEmail').value, $('#regPass').value); authDialog.close(); }
+  try { await createUserWithEmailAndPassword(auth, $('#regEmail').value, $('#regPass').value); try{authDialog.close();}catch(_){} }
   catch(e){ authMsg.textContent = e.message; }
 });
 
+// ==== Firestore sync por usuario ====
+function subscribeUserData(uid){
+  // Eventos
+  if (state.unsubEvents) { state.unsubEvents(); state.unsubEvents = null; }
+  state.unsubEvents = onSnapshot(collection(db, 'users', uid, 'events'), (snap)=>{
+    const arr = [];
+    snap.forEach(d=> arr.push({id:d.id, ...d.data()}) );
+    // Ordenamos por fecha y hora (YYYY-MM-DD y HH:MM)
+    arr.sort((a,b)=>{
+      const d = (a.date||'').localeCompare(b.date||'');
+      if (d!==0) return d;
+      return (a.time||'').localeCompare(b.time||'');
+    });
+    state.events = arr;
+    renderCalendar();
+  });
+
+  // Bitácora
+  if (state.unsubBitacora) { state.unsubBitacora(); state.unsubBitacora = null; }
+  state.unsubBitacora = onSnapshot(collection(db, 'users', uid, 'bitacora'), (snap)=>{
+    const arr = [];
+    snap.forEach(d=> arr.push({id:d.id, ...d.data()}) );
+    // desc por ts
+    arr.sort((a,b)=>(b.ts||0)-(a.ts||0));
+    state.bitacora = arr;
+    refreshBitacora();
+  });
+}
+
+function unsubscribeUserData(){
+  if (state.unsubEvents) { state.unsubEvents(); state.unsubEvents = null; }
+  if (state.unsubBitacora) { state.unsubBitacora(); state.unsubBitacora = null; }
+}
+
+// ==== onAuth ====
 onAuthStateChanged(auth, (user)=>{
   const email = $('#authUserEmail'), out = $('#btnLogout'), inb = $('#btnLoginOpen');
-  if (user){ email.textContent=user.email; email.classList.remove('hidden'); out.classList.remove('hidden'); inb.classList.add('hidden'); }
-  else { email.classList.add('hidden'); out.classList.add('hidden'); inb.classList.remove('hidden'); }
-  refreshBitacora(); renderCalendar(); renderInformesList();
+  if (user){
+    email.textContent=user.email; email.classList.remove('hidden'); out.classList.remove('hidden'); inb.classList.add('hidden');
+    subscribeUserData(user.uid);
+  } else {
+    email.classList.add('hidden'); out.classList.add('hidden'); inb.classList.remove('hidden');
+    unsubscribeUserData();
+    // Cargamos localStorage del "guest"
+    state.events = ls.get(ns('events'), []);
+    state.bitacora = ls.get(ns('bitacora'), []);
+    renderCalendar();
+    refreshBitacora();
+  }
 });
 
 // ==== planificador ====
@@ -302,10 +376,17 @@ $('#btnPlanPDF')?.addEventListener('click', ()=>{
   const el = document.createElement('div'); el.innerHTML = buildPlanHTML();
   saveAsPDF(el, `Plan_${planFields.asignatura()}_${planFields.tipo()}.pdf`);
 });
-$('#btnPlanBitacora')?.addEventListener('click', ()=>{
-  const entries = ls.get(ns('bitacora'), []);
-  entries.unshift({ id:crypto.randomUUID(), type:'plan', title:`Plan: ${planFields.asignatura()} (${planFields.tipo()})`, html:buildPlanHTML(), ts:Date.now() });
-  ls.set(ns('bitacora'), entries); refreshBitacora();
+$('#btnPlanBitacora')?.addEventListener('click', async ()=>{
+  const entry = { type:'plan', title:`Plan: ${planFields.asignatura()} (${planFields.tipo()})`, html:buildPlanHTML(), ts:Date.now() };
+  if (auth.currentUser){
+    await addDoc(collection(db,'users',auth.currentUser.uid,'bitacora'), entry);
+  } else {
+    const entries = ls.get(ns('bitacora'), []);
+    entries.unshift({ id:crypto.randomUUID(), ...entry });
+    ls.set(ns('bitacora'), entries);
+    state.bitacora = entries;
+  }
+  refreshBitacora();
 });
 
 // ==== IA planificador (mock + endpoint opcional)
@@ -323,7 +404,7 @@ function mockIAPlanSuggestions(prompt){
     <h3>Evaluación</h3><ul><li>Rúbrica breve (comprensión, participación, producto).</li><li>Autoevaluación del proceso (2 ítems).</li></ul>`;
 }
 async function runIAPlan(){
-  const ep=$('#iaEndpoint').value.trim(); const key=$('#iaApiKey').value.trim(); const up=$('#iaPromptPlan').value.trim();
+  const ep=$('#iaEndpoint')?.value.trim(); const key=$('#iaApiKey')?.value.trim(); const up=$('#iaPromptPlan')?.value.trim();
   $('#iaPlanOutput').innerHTML='<p class="text-gray-500">Generando sugerencias…</p>';
   if(ep && key){
     try{
@@ -394,11 +475,19 @@ $('#btnInformePDF')?.addEventListener('click', ()=>{
   const el=document.createElement('div'); el.innerHTML = buildInformeHTML();
   saveAsPDF(el, 'Informe_estudiante.pdf');
 });
-$('#btnInformeBitacora')?.addEventListener('click', ()=>{
-  const entries = ls.get(ns('bitacora'), []);
-  entries.unshift({ id:crypto.randomUUID(), type:'informe', title:`Informe ${new Date().toLocaleDateString()}`, html:buildInformeHTML(), ts:Date.now() });
-  ls.set(ns('bitacora'), entries); refreshBitacora();
+$('#btnInformeBitacora')?.addEventListener('click', async ()=>{
+  const entry = { type:'informe', title:`Informe ${new Date().toLocaleDateString()}`, html:buildInformeHTML(), ts:Date.now() };
+  if (auth.currentUser){
+    await addDoc(collection(db,'users',auth.currentUser.uid,'bitacora'), entry);
+  } else {
+    const entries = ls.get(ns('bitacora'), []);
+    entries.unshift({ id:crypto.randomUUID(), ...entry });
+    ls.set(ns('bitacora'), entries);
+    state.bitacora = entries;
+  }
+  refreshBitacora();
 });
+renderInformesList();
 
 // ==== calendario ====
 let calCurrent = new Date();
@@ -407,9 +496,6 @@ const eventDialog = $('#eventDialog');
 const ev_date=$('#ev_date'), ev_time=$('#ev_time'), ev_title=$('#ev_title'), ev_notes=$('#ev_notes');
 const ev_save=$('#ev_save'), ev_delete=$('#ev_delete');
 let editingEventId = null;
-
-function getEvents(){ return ls.get(ns('events'), []); }
-function setEvents(a){ ls.set(ns('events'), a); }
 
 function renderCalendar(){
   if(!calendarGrid) return;
@@ -420,7 +506,9 @@ function renderCalendar(){
 
   for(let i=0;i<start;i++) calendarGrid.innerHTML += `<div class="h-24 border rounded-xl bg-gray-50"></div>`;
 
-  const events=getEvents();
+  // Tomar del estado (ya viene de Firestore o LS)
+  const events = state.events || [];
+
   for(let d=1; d<=days; d++){
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dayEvents = events.filter(e=>e.date===dateStr);
@@ -443,35 +531,60 @@ function renderCalendar(){
       if(ev_title) ev_title.value='';
       if(ev_notes) ev_notes.value='';
       ev_delete?.classList.add('hidden');
-      eventDialog?.showModal();
+      try{ eventDialog?.showModal(); }catch{ eventDialog?.setAttribute('open',''); }
     });
   });
   [...calendarGrid.querySelectorAll('button[data-ev]')].forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const id=btn.dataset.ev; const ev=getEvents().find(e=>e.id===id); if(!ev) return;
+      const id=btn.dataset.ev; const ev=(state.events||[]).find(e=>e.id===id); if(!ev) return;
       editingEventId = ev.id;
       if(ev_date) ev_date.value=ev.date;
       if(ev_time) ev_time.value=ev.time||'';
       if(ev_title) ev_title.value=ev.title;
       if(ev_notes) ev_notes.value=ev.notes||'';
       ev_delete?.classList.remove('hidden');
-      eventDialog?.showModal();
+      try{ eventDialog?.showModal(); }catch{ eventDialog?.setAttribute('open',''); }
     });
   });
 }
 $('#prevMonth')?.addEventListener('click', ()=>{ calCurrent.setMonth(calCurrent.getMonth()-1); renderCalendar(); });
 $('#nextMonth')?.addEventListener('click', ()=>{ calCurrent.setMonth(calCurrent.getMonth()+1); renderCalendar(); });
 
-ev_save?.addEventListener('click', ()=>{
-  const arr=getEvents();
-  if(editingEventId){ const i=arr.findIndex(e=>e.id===editingEventId); if(i>=0) arr[i]={...arr[i],date:ev_date.value,time:ev_time.value,title:ev_title.value,notes:ev_notes.value}; }
-  else{ arr.push({id:crypto.randomUUID(),date:ev_date.value,time:ev_time.value,title:ev_title.value,notes:ev_notes.value}); }
-  setEvents(arr); eventDialog?.close(); renderCalendar();
+ev_save?.addEventListener('click', async ()=>{
+  const payload = { date:ev_date.value, time:ev_time.value, title:ev_title.value, notes:ev_notes.value, ts:Date.now() };
+  if (auth.currentUser){
+    if (editingEventId){
+      await updateDoc(doc(db,'users',auth.currentUser.uid,'events',editingEventId), payload);
+    } else {
+      const ref = await addDoc(collection(db,'users',auth.currentUser.uid,'events'), payload);
+      editingEventId = ref.id;
+    }
+  } else {
+    const arr = ls.get(ns('events'), []);
+    if (editingEventId){
+      const i = arr.findIndex(e=>e.id===editingEventId);
+      if (i>=0) arr[i] = { ...arr[i], ...payload };
+    } else {
+      arr.push({ id:crypto.randomUUID(), ...payload });
+      editingEventId = arr[arr.length-1].id;
+    }
+    ls.set(ns('events'), arr);
+    state.events = arr;
+  }
+  try{ eventDialog?.close(); }catch{}
+  renderCalendar();
 });
-ev_delete?.addEventListener('click', ()=>{
+ev_delete?.addEventListener('click', async ()=>{
   if(!editingEventId) return;
-  setEvents(getEvents().filter(e=>e.id!==editingEventId));
-  eventDialog?.close(); renderCalendar();
+  if (auth.currentUser){
+    await deleteDoc(doc(db,'users',auth.currentUser.uid,'events',editingEventId));
+  } else {
+    const arr = (state.events||[]).filter(e=>e.id!==editingEventId);
+    ls.set(ns('events'), arr);
+    state.events = arr;
+  }
+  try{ eventDialog?.close(); }catch{}
+  renderCalendar();
 });
 
 // ==== bitácora ====
@@ -479,18 +592,26 @@ const bitacoraList = $('#bitacoraList');
 const bitacoraTitulo = $('#bitacoraTitulo');
 const bitacoraContenido = $('#bitacoraContenido');
 
-$('#btnAddEntry')?.addEventListener('click', ()=>{
+$('#btnAddEntry')?.addEventListener('click', async ()=>{
   const title=bitacoraTitulo?.value.trim(); const body=bitacoraContenido?.value.trim();
   if(!title && !body) return;
-  const entries = ls.get(ns('bitacora'), []);
-  entries.unshift({ id:crypto.randomUUID(), type:'custom', title:title||'Entrada', html:`<div><h2>${title||'Entrada'}</h2><p>${body||'(Sin contenido)'}</p></div>`, ts:Date.now() });
-  ls.set(ns('bitacora'), entries);
+  const entry = { type:'custom', title:title||'Entrada', html:`<div><h2>${title||'Entrada'}</h2><p>${body||'(Sin contenido)'}</p></div>`, ts:Date.now() };
+
+  if (auth.currentUser){
+    await addDoc(collection(db,'users',auth.currentUser.uid,'bitacora'), entry);
+  } else {
+    const entries = ls.get(ns('bitacora'), []);
+    entries.unshift({ id:crypto.randomUUID(), ...entry });
+    ls.set(ns('bitacora'), entries);
+    state.bitacora = entries;
+  }
   if(bitacoraTitulo) bitacoraTitulo.value=''; if(bitacoraContenido) bitacoraContenido.value='';
   refreshBitacora();
 });
+
 function refreshBitacora(){
   if(!bitacoraList) return;
-  const entries = ls.get(ns('bitacora'), []);
+  const entries = state.bitacora || ls.get(ns('bitacora'), []);
   if(!entries.length){ bitacoraList.innerHTML=`<div class="col-span-2 text-sm text-gray-500">No hay entradas aún.</div>`; return; }
   bitacoraList.innerHTML = entries.map(e=>`
     <div class="border rounded-2xl p-4 bg-white shadow-soft">
@@ -527,17 +648,24 @@ function refreshBitacora(){
     });
   });
   [...bitacoraList.querySelectorAll('button[data-del]')].forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const filtered = entriesRef.filter(x=>x.id!==btn.dataset.del);
-      ls.set(ns('bitacora'), filtered); refreshBitacora();
+    btn.addEventListener('click', async ()=>{
+      const id = btn.dataset.del;
+      if (auth.currentUser){
+        await deleteDoc(doc(db,'users',auth.currentUser.uid,'bitacora',id));
+      } else {
+        const filtered = entriesRef.filter(x=>x.id!==id);
+        ls.set(ns('bitacora'), filtered); state.bitacora = filtered;
+      }
+      refreshBitacora();
     });
   });
 }
 
-// Render inicial por si el auth tarda
+// Render inicial (en caso de estar deslogueado al cargar)
+state.events = ls.get(ns('events'), []);
+state.bitacora = ls.get(ns('bitacora'), []);
 refreshBitacora();
 renderCalendar();
-renderInformesList();
 
 // ==== inclusión IA ====
 function buildInclusionAdvice({edad, condicion, asignatura, contexto}){
@@ -552,13 +680,15 @@ function buildInclusionAdvice({edad, condicion, asignatura, contexto}){
   if((asignatura||'').toLowerCase().includes('historia')){ tips.push('Usar líneas de tiempo, mapas y fuentes simplificadas con glosario.'); }
 
   return `
-    <h3>Perfil</h3>
-    <ul><li><strong>Edad:</strong> ${edad||'-'}</li><li><strong>Condición:</strong> ${condicion||'-'}</li><li><strong>Asignatura:</strong> ${asignatura||'-'}</li></ul>
-    ${contexto?`<h3>Contexto</h3><p>${contexto}</p>`:''}
-    <h3>Estrategias sugeridas</h3>
-    <ul>${tips.map(t=>`<li>${t}</li>`).join('') || '<li>Ajustes generales de accesibilidad y apoyos visuales.</li>'}</ul>
-    <h3>Evaluación</h3>
-    <ul><li>Flexibilizar tiempos y formatos de respuesta.</li><li>Rúbrica clara con criterios simples y ejemplos.</li></ul>
+    <div id="incDoc">
+      <h3>Perfil</h3>
+      <ul><li><strong>Edad:</strong> ${edad||'-'}</li><li><strong>Condición:</strong> ${condicion||'-'}</li><li><strong>Asignatura:</strong> ${asignatura||'-'}</li></ul>
+      ${contexto?`<h3>Contexto</h3><p>${contexto}</p>`:''}
+      <h3>Estrategias sugeridas</h3>
+      <ul>${tips.map(t=>`<li>${t}</li>`).join('') || '<li>Ajustes generales de accesibilidad y apoyos visuales.</li>'}</ul>
+      <h3>Evaluación</h3>
+      <ul><li>Flexibilizar tiempos y formatos de respuesta.</li><li>Rúbrica clara con criterios simples y ejemplos.</li></ul>
+    </div>
   `;
 }
 $('#btnInclusionIA')?.addEventListener('click', ()=>{
